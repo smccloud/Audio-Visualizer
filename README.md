@@ -35,6 +35,31 @@ dotnet run --project AudioVisualizer/AudioVisualizer.csproj
 
 Play some audio, then watch the bars react. Press **Ctrl+C** to stop.
 
+## Testing
+
+`AudioVisualizer.Tests` is an xUnit project covering the platform-independent
+audio analysis and conversion code: the FFT, spectrum bands, level metering,
+PCM/float sample conversion, audio format helpers, and the console renderer.
+These are pure logic tests and never open an audio device, so they run on both
+Windows and Linux even though the app targets `net10.0-windows`.
+
+Run the suite from the repository root:
+
+```bash
+dotnet test AudioVisualizer.slnx
+```
+
+To match CI, build in Release and run the already-built tests:
+
+```bash
+dotnet build AudioVisualizer.slnx --configuration Release
+dotnet test AudioVisualizer.slnx --configuration Release --no-build
+```
+
+In Visual Studio, open `AudioVisualizer.slnx` and use **Test > Test Explorer**
+to run or debug individual tests. The Jenkins pipeline finds the test project
+automatically and publishes a TRX results file.
+
 ## Continuous integration
 
 `Jenkinsfile` builds and publishes the solution on a Linux Jenkins agent. The
