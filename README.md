@@ -1,5 +1,7 @@
 # Audio Visualizer
 
+[![Build Status](https://jenkins.smccloud.com/buildStatus/icon?job=Audio-Visualizer&style=plastic)](https://jenkins.smccloud.com/job/Audio-Visualizer/)
+
 A .NET 10 recreation of the kind of audio visualizer that shipped with Windows in
 the 1990s — the abstract, music-driven animations many of us remember from that
 era.
