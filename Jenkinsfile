@@ -66,6 +66,7 @@ pipeline {
                     ).trim()
 
                     if (testProject) {
+                        sh 'rm -rf TestResults'
                         sh "dotnet test AudioVisualizer.slnx --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
                     } else {
                         echo 'No test projects found; skipping dotnet test.'
