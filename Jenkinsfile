@@ -7,6 +7,7 @@
 //   * The app targets net10.0-windows. Linux can restore, build and publish it
 //     (EnableWindowsTargeting is set in the project), but it must be run on
 //     Windows — this pipeline does not run the application.
+//   * The Jenkins MSTest plugin is required to publish the TRX test results.
 //
 // Agent: defaults to `any`. Replace with the label of your Linux build agents,
 // for example: agent { label 'linux' }.
@@ -73,7 +74,7 @@ pipeline {
             }
             post {
                 always {
-                    junit testResults: 'TestResults/**/*.trx', allowEmptyResults: true
+                    mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
                 }
             }
         }

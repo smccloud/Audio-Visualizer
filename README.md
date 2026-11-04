@@ -58,7 +58,7 @@ dotnet test AudioVisualizer.slnx --configuration Release --no-build
 
 In Visual Studio, open `AudioVisualizer.slnx` and use **Test > Test Explorer**
 to run or debug individual tests. The Jenkins pipeline finds the test project
-automatically and publishes a TRX results file.
+automatically and publishes the results through the Jenkins MSTest plugin.
 
 ## Continuous integration
 
@@ -69,7 +69,7 @@ band.
 The pipeline:
 
 - restores and builds in Release with warnings as errors
-- runs tests if a test project is present, and publishes TRX results
+- runs the unit tests and publishes TRX results with the MSTest plugin
 - publishes a framework-dependent `win-x64` build and archives it
 
 Because the app targets `net10.0-windows`, Linux can build and package it but
