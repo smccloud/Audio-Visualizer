@@ -33,6 +33,21 @@ dotnet run --project AudioVisualizer/AudioVisualizer.csproj
 
 Play some audio, then watch the bars react. Press **Ctrl+C** to stop.
 
+## Continuous integration
+
+`Jenkinsfile` builds and publishes the solution on a Linux Jenkins agent. The
+agent needs a .NET 10 SDK on its `PATH`; `global.json` pins the 10.0 SDK feature
+band.
+
+The pipeline:
+
+- restores and builds in Release with warnings as errors
+- runs tests if a test project is present, and publishes TRX results
+- publishes a framework-dependent `win-x64` build and archives it
+
+Because the app targets `net10.0-windows`, Linux can build and package it but
+cannot run it — the audio capture smoke test still happens on Windows.
+
 ## Status
 
 The capture and analysis pipeline is in place, along with a console test

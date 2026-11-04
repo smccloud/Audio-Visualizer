@@ -481,3 +481,7 @@ ehthumbs_vista.db
 $RECYCLE.BIN/
 *.lnk
 *.swp
+
+# CI
+TestResults/
+.dotnet/
