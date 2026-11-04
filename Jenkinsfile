@@ -13,7 +13,9 @@
 
 pipeline {
     agent any
-
+    triggers {
+        githubPush()
+    }
     // tools {
     //     dotnet 'dotnet-10'
     // }
