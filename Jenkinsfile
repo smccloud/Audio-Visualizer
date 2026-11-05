@@ -11,6 +11,11 @@
 //
 // Agent: defaults to `any`. Replace with the label of your Linux build agents,
 // for example: agent { label 'linux' }.
+//
+// The Windows installer (installer/AudioVisualizer.Installer.wixproj) is built
+// from a self-contained win-x64 publish. WiX cannot produce an MSI on Linux, so
+// this pipeline uses AudioVisualizer.Linux.slnf to exclude the installer and
+// the MSI is built on Windows (see README.md).
 
 pipeline {
     agent any
@@ -35,6 +40,9 @@ pipeline {
         // Keep SDK/NuGet state inside the workspace so builds do not depend on
         // the Jenkins user's home directory.
         DOTNET_CLI_HOME            = "${WORKSPACE}/.dotnet"
+        // Solution filter that excludes the WiX installer project, which can
+        // only be built on Windows.
+        SOLUTION                   = 'AudioVisualizer.Linux.slnf'
     }
 
     stages {
@@ -47,13 +55,13 @@ pipeline {
 
         stage('Restore') {
             steps {
-                sh 'dotnet restore AudioVisualizer.slnx'
+                sh "dotnet restore ${SOLUTION}"
             }
         }
 
         stage('Build') {
             steps {
-                sh "dotnet build AudioVisualizer.slnx --configuration ${CONFIGURATION} --no-restore --warnaserror"
+                sh "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
             }
         }
 
@@ -67,7 +75,7 @@ pipeline {
 
                     if (testProject) {
                         sh 'rm -rf TestResults'
-                        sh "dotnet test AudioVisualizer.slnx --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
+                        sh "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
                     } else {
                         echo 'No test projects found; skipping dotnet test.'
                     }

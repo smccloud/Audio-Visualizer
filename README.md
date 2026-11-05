@@ -35,6 +35,34 @@ dotnet run --project AudioVisualizer/AudioVisualizer.csproj
 
 Play some audio, then watch the bars react. Press **Ctrl+C** to stop.
 
+## Installer
+
+`installer/AudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
+v6 project that packages the app as a Windows Installer (MSI). It publishes a
+self-contained, single-file `win-x64` build first, so the installed app does not
+need a separate .NET runtime.
+
+Build the MSI on Windows:
+
+```powershell
+dotnet build AudioVisualizer.slnx --configuration Release
+# MSI: installer\bin\x64\Release\AudioVisualizer.msi
+```
+
+To build only the installer:
+
+```powershell
+dotnet build installer/AudioVisualizer.Installer.wixproj --configuration Release
+# MSI: installer\bin\Release\AudioVisualizer.msi
+```
+
+The MSI installs to `C:\Program Files\Audio Visualizer`, adds a Start Menu
+shortcut, and registers an entry in **Apps & features**. It uses the standard
+WiX install-directory UI with a license page.
+
+> **Note:** WiX can only build MSI packages on Windows. The Linux CI pipeline
+> therefore builds `AudioVisualizer.Linux.slnf`, which excludes the installer.
+
 ## Testing
 
 `AudioVisualizer.Tests` is an xUnit project covering the platform-independent
@@ -49,11 +77,17 @@ Run the suite from the repository root:
 dotnet test AudioVisualizer.slnx
 ```
 
+On Linux, use the solution filter that excludes the Windows-only installer:
+
+```bash
+dotnet test AudioVisualizer.Linux.slnf
+```
+
 To match CI, build in Release and run the already-built tests:
 
 ```bash
-dotnet build AudioVisualizer.slnx --configuration Release
-dotnet test AudioVisualizer.slnx --configuration Release --no-build
+dotnet build AudioVisualizer.Linux.slnf --configuration Release
+dotnet test AudioVisualizer.Linux.slnf --configuration Release --no-build
 ```
 
 In Visual Studio, open `AudioVisualizer.slnx` and use **Test > Test Explorer**
@@ -66,14 +100,17 @@ automatically and publishes the results through the Jenkins MSTest plugin.
 agent needs a .NET 10 SDK on its `PATH`; `global.json` pins the 10.0 SDK feature
 band.
 
-The pipeline:
+The pipeline uses `AudioVisualizer.Linux.slnf`, which excludes the WiX installer
+project because WiX cannot produce an MSI on Linux. It:
 
 - restores and builds in Release with warnings as errors
 - runs the unit tests and publishes TRX results with the MSTest plugin
 - publishes a framework-dependent `win-x64` build and archives it
 
 Because the app targets `net10.0-windows`, Linux can build and package it but
-cannot run it — the audio capture smoke test still happens on Windows.
+cannot run it — the audio capture smoke test still happens on Windows. Build the
+installer MSI on a Windows machine (or a Windows Jenkins agent) using the
+commands in [Installer](#installer).
 
 ## Status
 

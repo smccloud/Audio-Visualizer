@@ -1,4 +1,8 @@
 <Solution>
   <Project Path="AudioVisualizer/AudioVisualizer.csproj" />
   <Project Path="AudioVisualizer.Tests/AudioVisualizer.Tests.csproj" />
+  <Project Path="installer/AudioVisualizer.Installer.wixproj">
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Build Solution="*|Any CPU" Project="true" />
+  </Project>
 </Solution>

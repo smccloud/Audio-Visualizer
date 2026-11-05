@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "AudioVisualizer.slnx",
+    "projects": [
+      "AudioVisualizer/AudioVisualizer.csproj",
+      "AudioVisualizer.Tests/AudioVisualizer.Tests.csproj"
+    ]
+  }
+}
