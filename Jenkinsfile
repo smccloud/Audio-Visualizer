@@ -38,7 +38,7 @@ pipeline {
         DOTNET_CLI_HOME            = "${WORKSPACE}/.dotnet"
         // Solution filter that excludes the WiX installer project, which can
         // only be built on Windows.
-        SOLUTION                   = 'AudioVisualizer.sln'
+        SOLUTION                   = 'AudioVisualizer.slnx'
     }
 
     stages {
