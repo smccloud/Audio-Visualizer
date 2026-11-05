@@ -25,7 +25,9 @@ catch (IOException)
 using var capture = new WasapiLoopbackCapture();
 var levelAnalyzer = new AudioLevelAnalyzer();
 var spectrumAnalyzer = new SpectrumAnalyzer();
-var visualizer = new ConsoleVisualizer();
+var visualizer = new ConsoleVisualizer(
+    minFrequency: spectrumAnalyzer.MinFrequency,
+    maxFrequency: spectrumAnalyzer.MaxFrequency);
 var stop = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 var lastRender = Stopwatch.StartNew();
 

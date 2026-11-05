@@ -14,7 +14,8 @@ public sealed class SpectrumAnalyzer
     private readonly int _fftSize;
     private readonly int _bandCount;
     private readonly float[] _window;
-    private readonly float[] _ring;
+    private readonly float[] _leftRing;
+    private readonly float[] _rightRing;
     private readonly float[] _real;
     private readonly float[] _imaginary;
     private readonly int[] _bandStart;
@@ -49,7 +50,8 @@ public sealed class SpectrumAnalyzer
         _minFrequency = minFrequency;
         _maxFrequency = maxFrequency;
         _window = new float[fftSize];
-        _ring = new float[fftSize];
+        _leftRing = new float[fftSize];
+        _rightRing = new float[fftSize];
         _real = new float[fftSize];
         _imaginary = new float[fftSize];
         _bandStart = new int[bandCount];
@@ -64,6 +66,12 @@ public sealed class SpectrumAnalyzer
     /// <summary>Number of spectrum bands produced by <see cref="Analyze"/>.</summary>
     public int BandCount => _bandCount;
 
+    /// <summary>Minimum frequency covered by the analyzer.</summary>
+    public double MinFrequency => _minFrequency;
+
+    /// <summary>Maximum frequency covered by the analyzer.</summary>
+    public double MaxFrequency => _maxFrequency;
+
     /// <summary>Adds one packet of interleaved samples to the analysis window.</summary>
     public void Push(ReadOnlySpan<float> interleavedSamples, int channels)
     {
@@ -74,16 +82,11 @@ public sealed class SpectrumAnalyzer
         for (var frame = 0; frame < frames; frame++)
         {
             var offset = frame * channels;
-            var mono = 0f;
-            var rightChannelMono = 0f;
+            var left = interleavedSamples[offset];
+            var right = channels > 1 ? interleavedSamples[offset + 1] : left;
 
-            for (var channel = 0; channel < channels; channel++)
-            {
-                if (channel == 0) { mono += interleavedSamples[offset + channel]; } else { rightChannelMono += interleavedSamples[offset + channel]; }
-            }
-
-            _ring[_writeIndex] = mono / 2;
-            _ring[_writeIndex + _fftSize / 2] = rightChannelMono / 2;
+            _leftRing[_writeIndex] = left;
+            _rightRing[_writeIndex] = right;
             _writeIndex = (_writeIndex + 1) % _fftSize;
 
             if (_sampleCount < _fftSize)
@@ -94,28 +97,43 @@ public sealed class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Computes the current spectrum as <see cref="BandCount"/> values in [0, 1].
+    /// Computes the current left- and right-channel spectra. Each array contains
+    /// <see cref="BandCount"/> values in [0, 1].
     /// </summary>
     public (float[] leftBands, float[] rightBands) Analyze(int sampleRate)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
         UpdateBands(sampleRate);
 
+        return (AnalyzeChannel(_leftRing), AnalyzeChannel(_rightRing));
+    }
+
+    /// <summary>
+    /// Computes the current right-channel spectrum as <see cref="BandCount"/> values in [0, 1].
+    /// </summary>
+    public float[] AnalyzeRightChannel(int sampleRate)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
+        UpdateBands(sampleRate);
+
+        return AnalyzeChannel(_rightRing);
+    }
+
+    private float[] AnalyzeChannel(float[] ring)
+    {
         var start = (_writeIndex - _sampleCount + _fftSize) % _fftSize;
 
         for (var i = 0; i < _fftSize; i++)
         {
             _real[i] = i < _sampleCount
-                ? _ring[(start + i) % _fftSize] * _window[i]
+                ? ring[(start + i) % _fftSize] * _window[i]
                 : 0f;
             _imaginary[i] = 0f;
         }
 
         Fft.Transform(_real, _imaginary);
-        Fft.Transform(_real.Skip(_fftSize / 2).ToArray(), _imaginary.Skip(_fftSize / 2).ToArray());
 
-        var leftBands = new float[_bandCount];
-        var rightBands = new float[_bandCount];
+        var bands = new float[_bandCount];
         var normalization = 2f / _fftSize;
 
         for (var band = 0; band < _bandCount; band++)
@@ -136,28 +154,10 @@ public sealed class SpectrumAnalyzer
             var decibels = 20 * Math.Log10(Math.Max(rms, 1e-7));
 
             // Map -70 dBFS..0 dBFS onto 0..1.
-            leftBands[band] = (float)Math.Clamp((decibels + 70) / 70, 0, 1);
-
-            sum = 0;
-            bins = 0;
-
-            for (var bin = _bandStart[band] + _fftSize / 2; bin < _bandEnd[band] + _fftSize / 2; bin++)
-            {
-                var real = _real[bin % _fftSize];
-                var imaginary = _imaginary[bin % _fftSize];
-                var magnitude = Math.Sqrt(real * real + imaginary * imaginary) * normalization;
-                sum += magnitude * magnitude;
-                bins++;
-            }
-
-            rms = bins > 0 ? Math.Sqrt(sum / bins) : 0;
-            var decibelsRight = 20 * Math.Log10(Math.Max(rms, 1e-7));
-
-            // Map -70 dBFS..0 dBFS onto 0..1.
-            rightBands[band] = (float)Math.Clamp((decibelsRight + 70) / 70, 0, 1);
+            bands[band] = (float)Math.Clamp((decibels + 70) / 70, 0, 1);
         }
 
-        return (leftBands, rightBands);
+        return bands;
     }
 
     private void UpdateBands(int sampleRate)

@@ -33,7 +33,7 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
         analyzer.Push(CreateTone(48000, 1000, FftSize), channels: 1);
 
-        var bands = analyzer.Analyze(48000);
+        var bands = analyzer.Analyze(48000).leftBands;
 
         Assert.Equal(BandCount, bands.Length);
         Assert.All(bands, band => Assert.InRange(band, 0f, 1f));
@@ -45,7 +45,7 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
         analyzer.Push(new float[FftSize], channels: 1);
 
-        var bands = analyzer.Analyze(48000);
+        var bands = analyzer.Analyze(48000).leftBands;
 
         Assert.All(bands, band => Assert.Equal(0f, band, precision: 6));
     }
@@ -58,7 +58,7 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
         analyzer.Push(CreateTone(sampleRate, frequency, FftSize), channels: 1);
 
-        var bands = analyzer.Analyze(sampleRate);
+        var bands = analyzer.Analyze(sampleRate).leftBands;
         var expectedBand = ExpectedBand(frequency, sampleRate);
         var strongestBand = Array.IndexOf(bands, bands.Max());
 
@@ -75,13 +75,13 @@ public sealed class SpectrumAnalyzerTests
 
         var singlePush = new SpectrumAnalyzer(FftSize, BandCount);
         singlePush.Push(tone, channels: 1);
-        var expected = singlePush.Analyze(sampleRate);
+        var expected = singlePush.Analyze(sampleRate).leftBands;
 
         var multiplePushes = new SpectrumAnalyzer(FftSize, BandCount);
         multiplePushes.Push(tone.AsSpan(0, 700), channels: 1);
         multiplePushes.Push(tone.AsSpan(700, 900), channels: 1);
         multiplePushes.Push(tone.AsSpan(1600), channels: 1);
-        var actual = multiplePushes.Analyze(sampleRate);
+        var actual = multiplePushes.Analyze(sampleRate).leftBands;
 
         Assert.Equal(expected, actual);
     }
@@ -93,11 +93,11 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
 
         analyzer.Push(CreateTone(48000, frequency, FftSize), channels: 1);
-        var bandsAt48k = analyzer.Analyze(48000);
+        var bandsAt48k = analyzer.Analyze(48000).leftBands;
         var expectedAt48k = ExpectedBand(frequency, 48000);
 
         analyzer.Push(CreateTone(8000, frequency, FftSize), channels: 1);
-        var bandsAt8k = analyzer.Analyze(8000);
+        var bandsAt8k = analyzer.Analyze(8000).leftBands;
         var expectedAt8k = ExpectedBand(frequency, 8000);
 
         Assert.Equal(expectedAt48k, Array.IndexOf(bandsAt48k, bandsAt48k.Max()));
@@ -120,6 +120,73 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer();
 
         Assert.Throws<ArgumentOutOfRangeException>(() => analyzer.Analyze(0));
+    }
+
+    [Fact]
+    public void AnalyzeRightChannel_ReturnsOneValuePerBandWithinRange()
+    {
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
+        analyzer.Push(CreateTone(48000, 1000, FftSize, channels: 2), channels: 2);
+
+        var bands = analyzer.AnalyzeRightChannel(48000);
+
+        Assert.Equal(BandCount, bands.Length);
+        Assert.All(bands, band => Assert.InRange(band, 0f, 1f));
+    }
+
+    [Fact]
+    public void AnalyzeRightChannel_Silence_ReturnsZeroBands()
+    {
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
+        analyzer.Push(new float[FftSize * 2], channels: 2);
+
+        var bands = analyzer.AnalyzeRightChannel(48000);
+
+        Assert.All(bands, band => Assert.Equal(0f, band, precision: 6));
+    }
+
+    [Fact]
+    public void AnalyzeRightChannel_Tone_RaisesBandContainingFrequency()
+    {
+        const int sampleRate = 48000;
+        const double frequency = 1000;
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
+        analyzer.Push(CreateTone(sampleRate, frequency, FftSize, channels: 2), channels: 2);
+
+        var bands = analyzer.AnalyzeRightChannel(sampleRate);
+        var expectedBand = ExpectedBand(frequency, sampleRate);
+        var strongestBand = Array.IndexOf(bands, bands.Max());
+
+        Assert.Equal(expectedBand, strongestBand);
+        Assert.True(bands[expectedBand] > 0.5f);
+    }
+
+    [Fact]
+    public void Analyze_SeparatesLeftAndRightChannels()
+    {
+        const int sampleRate = 48000;
+        const double leftFrequency = 500;
+        const double rightFrequency = 4000;
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
+        var samples = new float[FftSize * 2];
+
+        for (var frame = 0; frame < FftSize; frame++)
+        {
+            samples[frame * 2] =
+                (float)Math.Sin(2 * Math.PI * leftFrequency * frame / sampleRate);
+            samples[(frame * 2) + 1] =
+                (float)Math.Sin(2 * Math.PI * rightFrequency * frame / sampleRate);
+        }
+
+        analyzer.Push(samples, channels: 2);
+        var (leftBands, rightBands) = analyzer.Analyze(sampleRate);
+
+        Assert.Equal(
+            ExpectedBand(leftFrequency, sampleRate),
+            Array.IndexOf(leftBands, leftBands.Max()));
+        Assert.Equal(
+            ExpectedBand(rightFrequency, sampleRate),
+            Array.IndexOf(rightBands, rightBands.Max()));
     }
 
     private static float[] CreateTone(
