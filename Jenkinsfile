@@ -84,8 +84,10 @@ pipeline {
             post {
                 always {
                     // Only run MSTest if tests were actually executed
-                    if (env.TESTS_RUN != 'false') {
-                        mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
+                    script {
+                        if (env.TESTS_RUN != 'false') {
+                            mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
+                        }
                     }
                 }
             }
