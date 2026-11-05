@@ -61,7 +61,8 @@ shortcut, and registers an entry in **Apps & features**. It uses the standard
 WiX install-directory UI with a license page.
 
 > **Note:** WiX can only build MSI packages on Windows. The Linux CI pipeline
-> therefore builds `AudioVisualizer.Linux.slnf`, which excludes the installer.
+> therefore builds `AudioVisualizer.Linux.slnf`, which excludes the installer. The
+> MSI installer must be built locally on a Windows machine when needed.
 
 ## Testing
 

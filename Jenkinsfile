@@ -74,6 +74,7 @@ pipeline {
                         bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
                         // Set a flag to indicate tests were run
                         currentBuild.displayName = "${currentBuild.displayName} [Tests Run]"
+                        env.TESTS_RUN = 'true'
                     } else {
                         echo 'No test projects found; skipping dotnet test.'
                         // Set a flag to indicate no tests were run
