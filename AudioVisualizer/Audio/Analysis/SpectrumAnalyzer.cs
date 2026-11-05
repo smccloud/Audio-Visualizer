@@ -75,13 +75,15 @@ public sealed class SpectrumAnalyzer
         {
             var offset = frame * channels;
             var mono = 0f;
+            var rightChannelMono = 0f;
 
             for (var channel = 0; channel < channels; channel++)
             {
-                mono += interleavedSamples[offset + channel];
+                if (channel == 0) { mono += interleavedSamples[offset + channel]; } else { rightChannelMono += interleavedSamples[offset + channel]; }
             }
 
-            _ring[_writeIndex] = mono / channels;
+            _ring[_writeIndex] = mono / 2;
+            _ring[_writeIndex + _fftSize / 2] = rightChannelMono / 2;
             _writeIndex = (_writeIndex + 1) % _fftSize;
 
             if (_sampleCount < _fftSize)
@@ -94,7 +96,7 @@ public sealed class SpectrumAnalyzer
     /// <summary>
     /// Computes the current spectrum as <see cref="BandCount"/> values in [0, 1].
     /// </summary>
-    public float[] Analyze(int sampleRate)
+    public (float[] leftBands, float[] rightBands) Analyze(int sampleRate)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
         UpdateBands(sampleRate);
@@ -110,8 +112,10 @@ public sealed class SpectrumAnalyzer
         }
 
         Fft.Transform(_real, _imaginary);
+        Fft.Transform(_real.Skip(_fftSize / 2).ToArray(), _imaginary.Skip(_fftSize / 2).ToArray());
 
-        var bands = new float[_bandCount];
+        var leftBands = new float[_bandCount];
+        var rightBands = new float[_bandCount];
         var normalization = 2f / _fftSize;
 
         for (var band = 0; band < _bandCount; band++)
@@ -132,10 +136,28 @@ public sealed class SpectrumAnalyzer
             var decibels = 20 * Math.Log10(Math.Max(rms, 1e-7));
 
             // Map -70 dBFS..0 dBFS onto 0..1.
-            bands[band] = (float)Math.Clamp((decibels + 70) / 70, 0, 1);
+            leftBands[band] = (float)Math.Clamp((decibels + 70) / 70, 0, 1);
+
+            sum = 0;
+            bins = 0;
+
+            for (var bin = _bandStart[band] + _fftSize / 2; bin < _bandEnd[band] + _fftSize / 2; bin++)
+            {
+                var real = _real[bin % _fftSize];
+                var imaginary = _imaginary[bin % _fftSize];
+                var magnitude = Math.Sqrt(real * real + imaginary * imaginary) * normalization;
+                sum += magnitude * magnitude;
+                bins++;
+            }
+
+            rms = bins > 0 ? Math.Sqrt(sum / bins) : 0;
+            var decibelsRight = 20 * Math.Log10(Math.Max(rms, 1e-7));
+
+            // Map -70 dBFS..0 dBFS onto 0..1.
+            rightBands[band] = (float)Math.Clamp((decibelsRight + 70) / 70, 0, 1);
         }
 
-        return bands;
+        return (leftBands, rightBands);
     }
 
     private void UpdateBands(int sampleRate)

@@ -3,6 +3,8 @@ using System.Text;
 using AudioVisualizer.Audio;
 using AudioVisualizer.Audio.Analysis;
 using AudioVisualizer.Visualization;
+using System;
+using System.Threading.Tasks;
 
 if (!OperatingSystem.IsWindows())
 {
@@ -45,10 +47,8 @@ capture.DataAvailable += (_, data) =>
     }
 
     lastRender.Restart();
-    visualizer.Render(
-        spectrumAnalyzer.Analyze(data.Format.SampleRate),
-        levels,
-        data.Format);
+    var (leftBands, rightBands) = spectrumAnalyzer.Analyze(data.Format.SampleRate);
+    visualizer.Render(leftBands, rightBands, levels, data.Format);
 };
 
 capture.Error += (_, error) =>

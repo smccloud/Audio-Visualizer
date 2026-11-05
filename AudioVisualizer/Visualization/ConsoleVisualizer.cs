@@ -1,4 +1,5 @@
 using System.Text;
+
 using AudioVisualizer.Audio;
 using AudioVisualizer.Audio.Analysis;
 
@@ -16,7 +17,8 @@ public sealed class ConsoleVisualizer
 
     private readonly int _height;
     private readonly int _bandWidth;
-    private float[] _displayed = Array.Empty<float>();
+    private float[] _leftDisplayed = Array.Empty<float>();
+    private float[] _rightDisplayed = Array.Empty<float>();
     private bool _started;
 
     public ConsoleVisualizer(int height = 16, int bandWidth = 2)
@@ -29,7 +31,8 @@ public sealed class ConsoleVisualizer
     }
 
     public void Render(
-        ReadOnlySpan<float> bands,
+        ReadOnlySpan<float> leftBands,
+        ReadOnlySpan<float> rightBands,
         AudioLevelSnapshot levels,
         AudioFormat format)
     {
@@ -43,15 +46,17 @@ public sealed class ConsoleVisualizer
             _started = true;
         }
 
-        if (_displayed.Length != bands.Length)
+        if (_leftDisplayed.Length != leftBands.Length || _rightDisplayed.Length != rightBands.Length)
         {
-            _displayed = new float[bands.Length];
+            _leftDisplayed = new float[leftBands.Length];
+            _rightDisplayed = new float[rightBands.Length];
         }
 
         // Ease the bars downward so they do not flicker between packets.
-        for (var band = 0; band < bands.Length; band++)
+        for (var band = 0; band < leftBands.Length; band++)
         {
-            _displayed[band] = MathF.Max(bands[band], _displayed[band] * 0.82f);
+            _leftDisplayed[band] = MathF.Max(leftBands[band], _leftDisplayed[band] * 0.82f);
+            _rightDisplayed[band] = MathF.Max(rightBands[band], _rightDisplayed[band] * 0.82f);
         }
 
         var output = new StringBuilder();
@@ -64,13 +69,14 @@ public sealed class ConsoleVisualizer
         output.AppendLine();
         output.AppendLine();
 
+        // Render left channel
         for (var row = _height; row >= 1; row--)
         {
-            output.Append("  ");
+            output.Append("  LEFT ");
 
-            for (var band = 0; band < _displayed.Length; band++)
+            for (var band = 0; band < _leftDisplayed.Length; band++)
             {
-                var level = _displayed[band] * _height;
+                var level = _leftDisplayed[band] * _height;
                 var glyph = level >= row
                     ? FullBlock
                     : level > row - 1
@@ -89,10 +95,43 @@ public sealed class ConsoleVisualizer
         }
 
         output.Append("  ");
-        output.Append('─', _displayed.Length * _bandWidth);
+        output.Append('─', _leftDisplayed.Length * _bandWidth);
         output.AppendLine();
         output.Append("  LOW");
-        output.Append(' ', Math.Max(1, _displayed.Length * _bandWidth - 7));
+        output.Append(' ', Math.Max(1, _leftDisplayed.Length * _bandWidth - 7));
+        output.AppendLine("HIGH");
+        output.AppendLine();
+
+        // Render right channel
+        for (var row = _height; row >= 1; row--)
+        {
+            output.Append("  RIGHT ");
+
+            for (var band = 0; band < _rightDisplayed.Length; band++)
+            {
+                var level = _rightDisplayed[band] * _height;
+                var glyph = level >= row
+                    ? FullBlock
+                    : level > row - 1
+                        ? HalfBlock
+                        : ' ';
+
+                output.Append(glyph);
+
+                if (_bandWidth > 1)
+                {
+                    output.Append(' ', _bandWidth - 1);
+                }
+            }
+
+            output.AppendLine();
+        }
+
+        output.Append("  ");
+        output.Append('─', _rightDisplayed.Length * _bandWidth);
+        output.AppendLine();
+        output.Append("  LOW");
+        output.Append(' ', Math.Max(1, _rightDisplayed.Length * _bandWidth - 7));
         output.AppendLine("HIGH");
         output.AppendLine();
         output.AppendLine("  Press Ctrl+C to stop.");
