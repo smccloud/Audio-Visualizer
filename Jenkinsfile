@@ -1,24 +1,20 @@
-// Jenkins CI for the .NET 10 AudioVisualizer solution on a Linux agent.
+// Jenkins CI for the .NET 10 AudioVisualizer solution on a Windows agent.
 //
 // Prerequisites
 //   * A .NET 10 SDK on PATH (the pipeline prints `dotnet --info` to confirm).
 //     Alternatively configure a .NET SDK tool in Jenkins and uncomment the
 //     tools block below.
-//   * The app targets net10.0-windows. Linux can restore, build and publish it
-//     (EnableWindowsTargeting is set in the project), but it must be run on
-//     Windows — this pipeline does not run the application.
+//   * The app targets net10.0-windows. This pipeline runs on Windows.
 //   * The Jenkins MSTest plugin is required to publish the TRX test results.
 //
-// Agent: defaults to `any`. Replace with the label of your Linux build agents,
-// for example: agent { label 'linux' }.
+// Agent: runs on a Windows agent labeled 'Windows-Agent'.
 //
 // The Windows installer (installer/AudioVisualizer.Installer.wixproj) is built
-// from a self-contained win-x64 publish. WiX cannot produce an MSI on Linux, so
-// this pipeline uses AudioVisualizer.Linux.slnf to exclude the installer and
-// the MSI is built on Windows (see README.md).
+// from a self-contained win-x64 publish. This pipeline builds the MSI.
+//
 
 pipeline {
-    agent any
+    agent { label 'Windows-Agent' }
     triggers {
         githubPush()
     }
@@ -48,34 +44,34 @@ pipeline {
     stages {
         stage('Verify SDK') {
             steps {
-                sh 'dotnet --version'
-                sh 'dotnet --info'
+                bat 'dotnet --version'
+                bat 'dotnet --info'
             }
         }
 
         stage('Restore') {
             steps {
-                sh "dotnet restore ${SOLUTION}"
+                bat "dotnet restore ${SOLUTION}"
             }
         }
 
         stage('Build') {
             steps {
-                sh "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
+                bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
             }
         }
 
         stage('Test') {
             steps {
                 script {
-                    def testProject = sh(
-                        script: "find . -name '*Tests.csproj' -o -name '*Test.csproj' | head -n 1",
+                    def testProject = bat(
+                        script: "dir /s /b *Tests.csproj *Test.csproj 2>nul | findstr /i \".csproj\" | head -n 1",
                         returnStdout: true
                     ).trim()
 
                     if (testProject) {
-                        sh 'rm -rf TestResults'
-                        sh "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
+                        bat 'if exist TestResults rmdir /s /q TestResults'
+                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
                     } else {
                         echo 'No test projects found; skipping dotnet test.'
                     }
@@ -92,9 +88,9 @@ pipeline {
             steps {
                 // Linux cannot run the Windows app, but it can produce a
                 // framework-dependent Windows build for packaging.
-                sh 'rm -rf publish'
-                sh "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained false --output publish"
-                sh 'ls -la publish'
+                bat 'if exist publish rmdir /s /q publish'
+                bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained false --output publish"
+                bat 'dir publish'
             }
         }
     }
