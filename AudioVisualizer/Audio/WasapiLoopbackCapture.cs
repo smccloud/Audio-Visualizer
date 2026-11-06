@@ -319,16 +319,9 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
 
     private void RaiseData(AudioDataEventArgs args)
     {
-        var handler = DataAvailable;
-
-        if (handler is null)
-        {
-            return;
-        }
-
         try
         {
-            handler(this, args);
+            DataAvailable?.Invoke(this, args);
         }
         catch (Exception exception)
         {
@@ -338,16 +331,9 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
 
     private void RaiseError(Exception exception)
     {
-        var handler = Error;
-
-        if (handler is null)
-        {
-            return;
-        }
-
         try
         {
-            handler(this, new AudioCaptureErrorEventArgs(exception));
+            Error?.Invoke(this, new AudioCaptureErrorEventArgs(exception));
         }
         catch
         {
