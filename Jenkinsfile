@@ -83,25 +83,11 @@ pipeline {
         }
         stage('Ultimate Bug Scanner (WSL)') {
             steps {
-                script {
-                    echo 'Running Ultimate Bug Scanner inside WSL...'
-                    // UBS installs to ~/.local/bin, which is not on the PATH of
-                    // the non-login shell that `wsl <cmd>` uses, so prepend it
-                    // explicitly instead of relying on shell RC files.
-                    def ubsAvailable = bat(
-                        script: 'wsl bash -lc "export PATH=$HOME/.local/bin:$PATH; command -v ubs >/dev/null 2>&1"',
-                        returnStatus: true
-                    ) == 0
-
-                    if (!ubsAvailable) {
-                        echo 'UBS not found in WSL; installing it for the agent user...'
-                        bat 'wsl bash -lc "curl -fsSL https://raw.githubusercontent.com/Dicklesworthstone/ultimate_bug_scanner/main/install.sh | bash -s -- --non-interactive"'
-                    }
-
-                    // `ubs <path>` (or `ubs .`) is the documented invocation;
-                    // --path is not a UBS option.
-                    bat 'wsl bash -lc "export PATH=$HOME/.local/bin:$PATH; export UBS_NO_AUTO_UPDATE=1; ubs ."'
-                }
+                echo 'Triggering UBS inside Windows Subsystem for Linux...'
+                
+                // 1. 'wsl' invokes the default Linux distribution
+                // 2. We explicitly pass '.' so it evaluates the current workspace directory mapped into WSL
+                bat 'wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update /mnt/c/Jenkins/workspace/Audio-Visualizer'
             }
         }
 
