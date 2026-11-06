@@ -46,6 +46,22 @@ dotnet run --project AudioVisualizer/AudioVisualizer.csproj -- --console
 
 In console mode, press **Ctrl+C** to stop.
 
+## Screenshots
+
+The five built-in effects (switch with the arrow keys):
+
+| Console style bars | Mirrored spectrum bars |
+|---|---|
+| ![Console style bars](screenshots/effect_ConsoleStyleBars.png) | ![Mirrored spectrum bars](screenshots/effect_MirroredSpectrumBars.png) |
+
+| Oscilloscope trail | Pulsing shapes |
+|---|---|
+| ![Oscilloscope trail](screenshots/effect_OscilloscopeTrail.png) | ![Pulsing shapes](screenshots/effect_PulsingShapes.png) |
+
+| Beat particles |
+|---|
+| ![Beat particles](screenshots/effect_BeatParticles.png) |
+
 ## Installer
 
 `installer/AudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
