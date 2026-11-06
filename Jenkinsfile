@@ -50,9 +50,11 @@ pipeline {
                 // Wipe the entire workspace (bin/obj/publish/MSI output and any
                 // other leftovers) before building. Deferred wipeout is
                 // disabled so the files are really gone before the build
-                // starts instead of at the end of the run; deleteDir() catches
-                // anything cleanWs leaves behind.
-                cleanWs(deleteDirs: false, disableDeferredWipeout: true)
+                // starts instead of at the end of the run. deleteDirs must be
+                // true: leaving directories behind keeps an emptied .git
+                // directory, which the git plugin then reports as corrupt.
+                cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                deleteDir()
             }
         }
 
@@ -66,7 +68,10 @@ pipeline {
             steps {
                 script {
                     echo 'Running UBS against source'
-                    bat "wsl UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif /mnt/c/Jenkins/workspace/Audio-Visualizer/*"
+                    // UBS_ALLOW_PARTIAL is a shell variable assignment and the
+                    // trailing glob must be expanded inside WSL, so the command
+                    // has to run through bash rather than `wsl <command>`.
+                    bat 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif /mnt/c/Jenkins/workspace/Audio-Visualizer/*"'
                 }
             }
         }
