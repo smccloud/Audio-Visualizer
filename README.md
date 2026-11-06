@@ -110,6 +110,8 @@ project, and:
 - runs the unit tests and publishes TRX results with the MSTest plugin
 - publishes and archives a self-contained, single-file `win-x64` build
 - produces and archives the MSI through the installer project
+- runs Ultimate Bug Scanner (UBS) inside WSL; UBS is installed into the WSL
+  user's `~/.local/bin` on first use
 
 For a Linux-only build outside Jenkins, use `AudioVisualizer.Linux.slnf`, which
 excludes the WiX installer project (WiX cannot produce an MSI on Linux):
