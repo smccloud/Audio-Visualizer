@@ -50,6 +50,7 @@ public sealed class VisualizationWindow : Form
             new OscilloscopeTrailEffect(),
             new PulsingShapesEffect(),
             new BeatParticlesEffect(),
+            new LissajousEffect(),
         };
 
         _capture = new WasapiLoopbackCapture();
