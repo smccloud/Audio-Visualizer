@@ -64,11 +64,11 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    def testProjects = findFiles(glob: '**/*Tests.csproj').findAll {
-                        !it.path.contains('/bin/') && !it.path.contains('/obj/')
-                    }
+                    // No Pipeline Utility Steps plugin here, so probe the known
+                    // test project directly instead of globbing.
+                    def hasTests = fileExists('AudioVisualizer.Tests/AudioVisualizer.Tests.csproj')
 
-                    if (testProjects) {
+                    if (hasTests) {
                         bat 'if exist TestResults rmdir /s /q TestResults'
                         // Single quotes are not stripped by cmd.exe, so the
                         // logger must be passed without quoting: a quoted value
@@ -87,9 +87,13 @@ pipeline {
                     script {
                         // The MSTest plugin fails the build when the TRX glob
                         // matches nothing, so only publish when files exist.
-                        if (env.TESTS_RUN == 'true' &&
-                            findFiles(glob: 'TestResults/**/*.trx').length > 0) {
-                            mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
+                        def trxFound = bat(
+                            script: 'dir /b /s TestResults\\*.trx >nul 2>&1',
+                            returnStatus: true
+                        ) == 0
+
+                        if (env.TESTS_RUN == 'true' && trxFound) {
+                            mstest testResultsFile: 'TestResults/*.trx', keepLongStdio: true
                         }
                     }
                 }
