@@ -36,8 +36,8 @@ pipeline {
         // Keep SDK/NuGet state inside the workspace so builds do not depend on
         // the Jenkins user's home directory.
         DOTNET_CLI_HOME            = "${WORKSPACE}/.dotnet"
-        // Solution filter that excludes the WiX installer project, which can
-        // only be built on Windows.
+        // Full solution: this pipeline runs on Windows, so the WiX installer
+        // project can be built here as well.
         SOLUTION                   = 'AudioVisualizer.slnx'
     }
 
@@ -64,29 +64,31 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    def testProject = bat(
-                        script: "dir /s /b *Tests.csproj *Test.csproj 2>nul | findstr /i \".csproj\" | head -n 1",
-                        returnStdout: true
-                    ).trim()
+                    def testProjects = findFiles(glob: '**/*Tests.csproj').findAll {
+                        !it.path.contains('/bin/') && !it.path.contains('/obj/')
+                    }
 
-                    if (testProject) {
+                    if (testProjects) {
                         bat 'if exist TestResults rmdir /s /q TestResults'
-                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
-                        // Set a flag to indicate tests were run
+                        // Single quotes are not stripped by cmd.exe, so the
+                        // logger must be passed without quoting: a quoted value
+                        // reaches dotnet as "'trx" and fails to load.
+                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger trx --results-directory TestResults"
                         currentBuild.displayName = "${currentBuild.displayName} [Tests Run]"
                         env.TESTS_RUN = 'true'
                     } else {
                         echo 'No test projects found; skipping dotnet test.'
-                        // Set a flag to indicate no tests were run
                         env.TESTS_RUN = 'false'
                     }
                 }
             }
             post {
                 always {
-                    // Only run MSTest if tests were actually executed
                     script {
-                        if (env.TESTS_RUN != 'false') {
+                        // The MSTest plugin fails the build when the TRX glob
+                        // matches nothing, so only publish when files exist.
+                        if (env.TESTS_RUN == 'true' &&
+                            findFiles(glob: 'TestResults/**/*.trx').length > 0) {
                             mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
                         }
                     }
@@ -96,10 +98,10 @@ pipeline {
 
         stage('Publish (win-x64)') {
             steps {
-                // Linux cannot run the Windows app, but it can produce a
-                // framework-dependent Windows build for packaging.
+                // Match the shape the installer consumes: self-contained,
+                // single-file, so no .NET runtime is required on the target.
                 bat 'if exist publish rmdir /s /q publish'
-                bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained false --output publish"
+                bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false --output publish"
                 bat 'dir publish'
             }
         }

@@ -1,12 +1,12 @@
 // Jenkins CI for Windows-specific builds of the AudioVisualizer solution
 //
 // This pipeline runs on a Windows agent and builds the MSI installer
-// using WiX Toolset v6.0.2. It should be triggered separately from
-// the Linux pipeline.
+// using WiX Toolset v6.0.2. The default Jenkinsfile already builds the
+// installer because it also runs on Windows; this file is kept for jobs
+// that publish the MSI as a first-class artifact.
 //
 // Prerequisites:
 //   * A .NET 10 SDK on PATH
-//   * WiX Toolset v6.0.2 installed
 //   * Jenkins MSTest plugin for test results
 //
 
@@ -15,118 +15,98 @@ pipeline {
     triggers {
         githubPush()
     }
-    
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '15'))
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
     }
-    
+
     environment {
-        CONFIGURATION              = 'Release'
+        CONFIGURATION               = 'Release'
         DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-        SOLUTION                   = 'AudioVisualizer.slnx'
-        PUBLISH_DIR                = 'publish'
-        INSTALLER_DIR              = 'installer'
-        ARTIFACT_DIR               = 'artifacts'
+        DOTNET_NOLOGO               = '1'
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
+        DOTNET_CLI_HOME             = "${WORKSPACE}/.dotnet"
+        SOLUTION                    = 'AudioVisualizer.slnx'
+        INSTALLER_DIR               = 'installer'
+        ARTIFACT_DIR                = 'artifacts'
     }
-    
+
     stages {
-        stage('Preparation') {
+        stage('Verify SDK') {
+            steps {
+                bat 'dotnet --version'
+                bat 'dotnet --info'
+            }
+        }
+
+        stage('Restore') {
+            steps {
+                bat "dotnet restore ${SOLUTION}"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
+            }
+        }
+
+        stage('Test') {
             steps {
                 script {
-                    echo 'Preparing build environment...'
-                    bat "dotnet --info"
-                    bat "echo SDK version: ${env.DOTNET_CLI_TELEMETRY_OPTOUT}"
-                    
-                    // Create artifacts directory
-                    dir('${ARTIFACT_DIR}') {
-                        bat 'if not exist . mkdir .'
+                    def testProjects = findFiles(glob: '**/*Tests.csproj').findAll {
+                        !it.path.contains('/bin/') && !it.path.contains('/obj/')
+                    }
+
+                    if (testProjects) {
+                        bat 'if exist TestResults rmdir /s /q TestResults'
+                        // cmd.exe does not strip single quotes, so quoting the
+                        // logger value passes "'trx" to dotnet and fails.
+                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger trx --results-directory TestResults"
+                        env.TESTS_RUN = 'true'
+                    } else {
+                        echo 'No test projects found; skipping dotnet test.'
+                        env.TESTS_RUN = 'false'
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        if (env.TESTS_RUN == 'true' &&
+                            findFiles(glob: 'TestResults/**/*.trx').length > 0) {
+                            mstest testResultsFile: 'TestResults/**/*.trx', keepLongStdio: true
+                        }
                     }
                 }
             }
         }
-        
-        stage('Restore') {
-            steps {
-                script {
-                    echo 'Restoring NuGet packages...'
-                    bat "dotnet restore ${SOLUTION} --verbosity quiet"
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                script {
-                    echo 'Building solution...'
-                    bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --verbosity quiet"
-                }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                script {
-                    echo 'Running tests...'
-                    bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
-                    currentBuild.displayName = "${currentBuild.displayName} [Tests Run]"
-                    env.TESTS_RUN = 'true'
-                }
-            }
-        }
-        
-        stage('Publish') {
-            steps {
-                script {
-                    echo 'Publishing win-x64 application...'
-                    bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --verbosity quiet --output ${PUBLISH_DIR}"
-                }
-            }
-        }
-        
+
         stage('Build Installer') {
             steps {
-                script {
-                    echo 'Building MSI installer...'
-                    bat "dotnet build ${INSTALLER_DIR}/AudioVisualizer.Installer.wixproj --configuration ${CONFIGURATION} --verbosity quiet"
-                    
-                    // Copy MSI to artifacts directory
-                    bat "if exist ${INSTALLER_DIR}/bin/${CONFIGURATION}/AudioVisualizer.Installer.msi (
-                        mkdir ${ARTIFACT_DIR} 2>nul
-                        copy ${INSTALLER_DIR}/bin/${CONFIGURATION}/AudioVisualizer.Installer.msi ${ARTIFACT_DIR}/
-                    )"
+                // The WiX project publishes a self-contained, single-file
+                // win-x64 build and packages it into the MSI.
+                bat "dotnet build ${INSTALLER_DIR}/AudioVisualizer.Installer.wixproj --configuration ${CONFIGURATION}"
+            }
+            post {
+                success {
+                    script {
+                        bat "if not exist ${ARTIFACT_DIR} mkdir ${ARTIFACT_DIR}"
+                        bat "copy /y ${INSTALLER_DIR}\\bin\\x64\\${CONFIGURATION}\\AudioVisualizer.msi ${ARTIFACT_DIR}\\"
+                    }
                 }
             }
         }
     }
-    
+
     post {
-        always {
-            script {
-                // Archive test results
-                if (env.TESTS_RUN == 'true') {
-                    junit '**/TestResults/*.trx'
-                    archiveArtifacts artifacts: '**/TestResults/*.trx', fingerprint: true
-                }
-                
-                // Archive MSI installer
-                archiveArtifacts artifacts: '${ARTIFACT_DIR}/AudioVisualizer.Installer.msi', fingerprint: true
-            }
-        }
-        
         success {
-            echo 'Build completed successfully!'
+            archiveArtifacts artifacts: "${ARTIFACT_DIR}/*.msi", fingerprint: true
         }
-        
-        failure {
-            echo 'Build failed!'
-            currentBuild.result = 'FAILURE'
-        }
-        
-        aborted {
-            echo 'Build was aborted!'
-            currentBuild.result = 'ABORTED'
+        always {
+            echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"
         }
     }
 }

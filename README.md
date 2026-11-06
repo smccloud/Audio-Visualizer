@@ -97,21 +97,29 @@ automatically and publishes the results through the Jenkins MSTest plugin.
 
 ## Continuous integration
 
-`Jenkinsfile` builds and publishes the solution on a Linux Jenkins agent. The
-agent needs a .NET 10 SDK on its `PATH`; `global.json` pins the 10.0 SDK feature
-band.
+`Jenkinsfile` builds and publishes the solution on a Windows Jenkins agent
+labelled `Windows-Agent`. The agent needs a .NET 10 SDK on its `PATH`;
+`global.json` pins the 10.0 SDK feature band.
 
-The pipeline uses `AudioVisualizer.Linux.slnf`, which excludes the WiX installer
-project because WiX cannot produce an MSI on Linux. It:
+The pipeline builds the full `AudioVisualizer.slnx`, including the WiX installer
+project, and:
 
 - restores and builds in Release with warnings as errors
 - runs the unit tests and publishes TRX results with the MSTest plugin
-- publishes a framework-dependent `win-x64` build and archives it
+- publishes a self-contained, single-file `win-x64` build and archives it
+- produces the MSI through the installer project
 
-Because the app targets `net10.0-windows`, Linux can build and package it but
-cannot run it — the audio capture smoke test still happens on Windows. Build the
-installer MSI on a Windows machine (or a Windows Jenkins agent) using the
-commands in [Installer](#installer).
+Because the app targets `net10.0-windows`, the pipeline must run on Windows. If
+you need a Linux-only build, use `AudioVisualizer.Linux.slnf`, which excludes the
+WiX installer project (WiX cannot produce an MSI on Linux):
+
+```bash
+dotnet build AudioVisualizer.Linux.slnf --configuration Release
+dotnet test AudioVisualizer.Linux.slnf --configuration Release --no-build
+```
+
+`Jenkinsfile.Windows` provides the same build for jobs that publish the MSI as a
+first-class artifact.
 
 ## Status
 
