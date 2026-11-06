@@ -152,6 +152,6 @@ public sealed class VUMeterEffect : IVisualizationEffect
         // Label
         using var font = new Font("Consolas", 12f, FontStyle.Bold);
         using var brush = new SolidBrush(Color.White);
-        graphics.DrawString(label, font, brush, cx - 6, cy + 5);
+        graphics.DrawString(label, font, brush, cx - 6, rect.Bottom + 5);
     }
 }
