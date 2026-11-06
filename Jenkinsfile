@@ -52,14 +52,23 @@ pipeline {
                 // disabled so the files are really gone before the build
                 // starts instead of at the end of the run; deleteDir() catches
                 // anything cleanWs leaves behind.
-                cleanWs(deleteDirs: true, disableDeferredWipeout: true)
-                deleteDir()
+                cleanWs(deleteDirs: false, disableDeferredWipeout: true)
             }
         }
 
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+		
+		stage('Ultimate Bug Scanner (WSL)') {
+            steps {
+                echo 'Triggering UBS inside Windows Subsystem for Linux...'
+                
+                // 1. 'wsl' invokes the default Linux distribution
+                // 2. We explicitly pass '.' so it evaluates the current workspace directory mapped into WSL
+                bat 'wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update /mnt/c/Jenkins/workspace/Audio-Visualizer'
             }
         }
 
@@ -79,15 +88,6 @@ pipeline {
         stage('Build') {
             steps {
                 bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
-            }
-        }
-        stage('Ultimate Bug Scanner (WSL)') {
-            steps {
-                echo 'Triggering UBS inside Windows Subsystem for Linux...'
-                
-                // 1. 'wsl' invokes the default Linux distribution
-                // 2. We explicitly pass '.' so it evaluates the current workspace directory mapped into WSL
-                bat 'wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update /mnt/c/Jenkins/workspace/Audio-Visualizer'
             }
         }
 
