@@ -99,15 +99,43 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
         SolidBrush yellowBrush,
         SolidBrush redBrush)
     {
+        var maxBarHeight = BandHeight * rowHeight;
+        var greenThreshold = (int)(0.5f * maxBarHeight);
+        var yellowThreshold = (int)(0.8f * maxBarHeight);
+
         for (var band = 0; band < displayed.Length; band++)
         {
             var level = displayed[band];
-            var height = (int)(level * BandHeight * rowHeight);
-            var x = originX + band * (barWidth + gap);
-            var y = originY + (BandHeight * rowHeight) - height;
+            var height = (int)(level * maxBarHeight);
+            if (height <= 0)
+            {
+                continue;
+            }
 
-            var brush = level >= 0.8f ? redBrush : level >= 0.5f ? yellowBrush : greenBrush;
-            graphics.FillRectangle(brush, x, y, barWidth, height);
+            var x = originX + band * (barWidth + gap);
+            var baseY = originY + maxBarHeight;
+
+            // Color is determined by vertical position (like the console
+            // renderer), not by the overall level: only the portion of the bar
+            // that rises above each ANSI color threshold takes the new color.
+            var greenHeight = Math.Min(height, greenThreshold);
+            var yellowHeight = Math.Min(Math.Max(height - greenThreshold, 0), yellowThreshold - greenThreshold);
+            var redHeight = Math.Max(height - yellowThreshold, 0);
+
+            if (greenHeight > 0)
+            {
+                graphics.FillRectangle(greenBrush, x, baseY - greenHeight, barWidth, greenHeight);
+            }
+
+            if (yellowHeight > 0)
+            {
+                graphics.FillRectangle(yellowBrush, x, baseY - greenHeight - yellowHeight, barWidth, yellowHeight);
+            }
+
+            if (redHeight > 0)
+            {
+                graphics.FillRectangle(redBrush, x, baseY - greenHeight - yellowHeight - redHeight, barWidth, redHeight);
+            }
         }
     }
 }
