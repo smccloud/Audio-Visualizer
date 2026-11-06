@@ -7,7 +7,7 @@ using AudioVisualizer.Visualization;
 using System;
 using System.Threading.Tasks;
 
-if (args.Contains("--console") == false)
+if (args.Contains("--console") == false && OperatingSystem.IsWindows())
 {
     ApplicationConfiguration.Initialize();
     Application.Run(new VisualizationWindow());
@@ -32,7 +32,10 @@ catch (IOException exception)
     Debug.WriteLine($"Unable to set UTF-8 output encoding: {exception.Message}");
 }
 
-await using var capture = new WasapiLoopbackCapture();
+IAudioCaptureSource capture = OperatingSystem.IsWindows()
+    ? new WasapiLoopbackCapture()
+    : new LinuxAudioCapture();
+await using var captureLifetime = (IAsyncDisposable)capture;
 var levelAnalyzer = new AudioLevelAnalyzer();
 var spectrumAnalyzer = new SpectrumAnalyzer();
 var visualizer = new ConsoleVisualizer(
