@@ -28,6 +28,8 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '15'))
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
+        // Take control of checkout so the workspace can be wiped first.
+        skipDefaultCheckout(true)
     }
 
     environment {
@@ -43,6 +45,20 @@ pipeline {
     }
 
     stages {
+        stage('Clean workspace') {
+            steps {
+                // Wipe stale bin/obj/publish/MSI output from previous runs
+                // before checking out the current revision.
+                cleanWs()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Detect platform') {
             steps {
                 script {
