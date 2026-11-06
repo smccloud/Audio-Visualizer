@@ -77,15 +77,26 @@ public sealed class VUMeterEffect : IVisualizationEffect
 
         EnsureBackground();
 
+        var halfWidth = bounds.Width / 2 - 20;
+        var availableHeight = bounds.Height - 40;
+        var meterSize = Math.Max(40, Math.Min(halfWidth, availableHeight));
+
+        var leftRect = new Rectangle(
+            10 + (halfWidth - meterSize) / 2,
+            (bounds.Height - meterSize) / 2,
+            meterSize,
+            meterSize);
+        var rightRect = new Rectangle(
+            bounds.Width / 2 + 10 + (halfWidth - meterSize) / 2,
+            (bounds.Height - meterSize) / 2,
+            meterSize,
+            meterSize);
+
         if (_background is not null)
         {
-            graphics.DrawImage(_background, bounds);
+            graphics.DrawImage(_background, leftRect);
+            graphics.DrawImage(_background, rightRect);
         }
-
-        var meterWidth = bounds.Width / 2 - 20;
-        var meterHeight = Math.Min(bounds.Height - 40, meterWidth);
-        var leftRect = new Rectangle(10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
-        var rightRect = new Rectangle(bounds.Width / 2 + 10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
 
         DrawNeedle(graphics, leftRect, _leftLevel, _leftPeak, "L");
         DrawNeedle(graphics, rightRect, _rightLevel, _rightPeak, "R");
