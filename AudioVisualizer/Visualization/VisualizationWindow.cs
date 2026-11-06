@@ -15,7 +15,8 @@ public sealed class VisualizationWindow : Form
     private readonly List<IVisualizationEffect> _effects;
     private int _effectIndex;
     private bool _pendingBeat;
-    private float _peakAverage;
+    private readonly float[] _peakHistory = new float[10];
+    private int _peakHistoryIndex;
     private readonly object _frameLock = new();
     private VisualizationFrame? _latestFrame;
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
@@ -117,20 +118,15 @@ public sealed class VisualizationWindow : Form
     private bool IsBeat(AudioLevelSnapshot levels)
     {
         var now = DateTime.UtcNow;
-        // Track a slow-moving average of the peak level so beats are detected
-        // relative to the current playback volume rather than an absolute
-        // threshold that most real-world captures never reach.
-        if (_peakAverage <= 0f)
-        {
-            _peakAverage = levels.Peak;
-            return false;
-        }
+        // Detect beats as onsets: a peak that rises well above the recent
+        // minimum peak level.
+        var minRecent = _peakHistory.Min();
+        var isBeat = levels.Peak - minRecent > 0.15f
+            && levels.Peak > 0.1f
+            && (now - _lastBeat).TotalMilliseconds > 80;
 
-        _peakAverage = (_peakAverage * 0.9f) + (levels.Peak * 0.1f);
-
-        var isBeat = levels.Peak > _peakAverage * 1.8f
-            && levels.Peak > 0.05f
-            && (now - _lastBeat).TotalMilliseconds > 120;
+        _peakHistory[_peakHistoryIndex] = levels.Peak;
+        _peakHistoryIndex = (_peakHistoryIndex + 1) % _peakHistory.Length;
 
         if (isBeat)
         {
