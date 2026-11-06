@@ -145,12 +145,18 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
                 enumerator.GetDefaultAudioEndpoint(EDataFlow.Render, ERole.Console, out device),
                 "IMMDeviceEnumerator.GetDefaultAudioEndpoint");
 
+            if (device is null)
+            {
+                throw new InvalidOperationException("No default render device is available.");
+            }
+
             var audioClientId = WasapiGuids.IAudioClient;
             HResult.ThrowIfFailed(
                 device.Activate(ref audioClientId, ClsCtx.All, IntPtr.Zero, out var audioClientObject),
                 "IMMDevice.Activate");
 
-            audioClient = (IAudioClient)audioClientObject;
+            audioClient = (IAudioClient?)audioClientObject
+                ?? throw new InvalidOperationException("IAudioClient activation returned null.");
 
             HResult.ThrowIfFailed(
                 audioClient.GetMixFormat(out mixFormatPointer),
@@ -175,7 +181,8 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
 
             try
             {
-                captureClient = (IAudioCaptureClient)Marshal.GetObjectForIUnknown(captureClientPointer);
+                captureClient = (IAudioCaptureClient?)Marshal.GetObjectForIUnknown(captureClientPointer)
+                    ?? throw new InvalidOperationException("IAudioCaptureClient marshalling returned null.");
             }
             finally
             {
