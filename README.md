@@ -33,7 +33,18 @@ dotnet build AudioVisualizer.slnx
 dotnet run --project AudioVisualizer/AudioVisualizer.csproj
 ```
 
-Play some audio, then watch the bars react. Press **Ctrl+C** to stop.
+By default the app opens a graphical visualization window. Use the arrow keys to
+switch effects, **F11** for full screen, and **Esc** to exit. Play some audio
+and watch the effects react.
+
+For the original text-based renderer (useful when troubleshooting the audio
+pipeline), run with `--console`:
+
+```bash
+dotnet run --project AudioVisualizer/AudioVisualizer.csproj -- --console
+```
+
+In console mode, press **Ctrl+C** to stop.
 
 ## Installer
 

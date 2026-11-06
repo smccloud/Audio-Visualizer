@@ -1,10 +1,18 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Windows.Forms;
 using AudioVisualizer.Audio;
 using AudioVisualizer.Audio.Analysis;
 using AudioVisualizer.Visualization;
 using System;
 using System.Threading.Tasks;
+
+if (args.Contains("--console") == false)
+{
+    ApplicationConfiguration.Initialize();
+    Application.Run(new VisualizationWindow());
+    return 0;
+}
 
 if (!OperatingSystem.IsWindows())
 {
