@@ -1,0 +1,113 @@
+using System.Drawing;
+using System.Drawing.Text;
+
+namespace AudioVisualizer.Visualization.Effects;
+
+public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
+{
+    public string Name => "Console-style bars";
+
+    private const int BandHeight = 16;
+    private float[] _leftDisplayed = Array.Empty<float>();
+    private float[] _rightDisplayed = Array.Empty<float>();
+    private VisualizationFrame? _lastFrame;
+
+    public void Reset()
+    {
+        _leftDisplayed = Array.Empty<float>();
+        _rightDisplayed = Array.Empty<float>();
+    }
+
+    public void Update(VisualizationFrame frame)
+    {
+        _lastFrame = frame;
+
+        if (_leftDisplayed.Length != frame.LeftBands.Length)
+        {
+            _leftDisplayed = new float[frame.LeftBands.Length];
+        }
+
+        if (_rightDisplayed.Length != frame.RightBands.Length)
+        {
+            _rightDisplayed = new float[frame.RightBands.Length];
+        }
+
+        for (var i = 0; i < frame.LeftBands.Length; i++)
+        {
+            _leftDisplayed[i] = MathF.Max(frame.LeftBands[i], _leftDisplayed[i] * 0.82f);
+        }
+
+        for (var i = 0; i < frame.RightBands.Length; i++)
+        {
+            _rightDisplayed[i] = MathF.Max(frame.RightBands[i], _rightDisplayed[i] * 0.82f);
+        }
+    }
+
+    public void Render(Graphics graphics, Rectangle bounds)
+    {
+        graphics.Clear(Color.Black);
+        graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+        using var font = new Font("Consolas", 11f);
+        using var headerBrush = new SolidBrush(Color.White);
+        using var greenBrush = new SolidBrush(Color.LimeGreen);
+        using var yellowBrush = new SolidBrush(Color.Yellow);
+        using var redBrush = new SolidBrush(Color.Red);
+
+        var sampleRateText = _lastFrame is null ? "0kHz" : $"{_lastFrame.SampleRate / 1000}kHz";
+        var channelCount = _lastFrame?.Levels.ChannelPeaks.Length ?? 0;
+
+        graphics.DrawString("AUDIO VISUALIZER", font, headerBrush, 10, 10);
+        graphics.DrawString($"{sampleRateText}  {channelCount} ch  {_leftDisplayed.Length} bands", font, headerBrush, 10, 30);
+
+        if (_lastFrame is not null)
+        {
+            graphics.DrawString(
+                $"RMS {_lastFrame.Levels.RmsDb,6:0.0} dBFS   PEAK {_lastFrame.Levels.PeakDb,6:0.0} dBFS",
+                font,
+                headerBrush,
+                10,
+                48);
+        }
+
+        var barWidth = 8;
+        var gap = 2;
+        var originX = 10;
+        var originY = 60;
+        var rowHeight = 12;
+
+        DrawBars(graphics, _leftDisplayed, originX, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
+
+        if (_rightDisplayed.Length > 0)
+        {
+            var rightOrigin = originX + (_leftDisplayed.Length * (barWidth + gap)) + 20;
+            DrawBars(graphics, _rightDisplayed, rightOrigin, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
+        }
+
+        graphics.DrawString("Press Esc to exit.", font, headerBrush, 10, bounds.Height - 24);
+    }
+
+    private static void DrawBars(
+        Graphics graphics,
+        float[] displayed,
+        int originX,
+        int originY,
+        int barWidth,
+        int gap,
+        int rowHeight,
+        SolidBrush greenBrush,
+        SolidBrush yellowBrush,
+        SolidBrush redBrush)
+    {
+        for (var band = 0; band < displayed.Length; band++)
+        {
+            var level = displayed[band];
+            var height = (int)(level * BandHeight * rowHeight);
+            var x = originX + band * (barWidth + gap);
+            var y = originY + (BandHeight * rowHeight) - height;
+
+            var brush = level >= 0.8f ? redBrush : level >= 0.5f ? yellowBrush : greenBrush;
+            graphics.FillRectangle(brush, x, y, barWidth, height);
+        }
+    }
+}

@@ -30,6 +30,7 @@ public sealed class VisualizationWindow : Form
 
         _effects = new List<IVisualizationEffect>
         {
+            new ConsoleStyleBarsEffect(),
             new MirroredSpectrumBarsEffect(),
             new OscilloscopeTrailEffect(),
             new PulsingShapesEffect(),
