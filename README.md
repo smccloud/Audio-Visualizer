@@ -52,27 +52,27 @@ The built-in effects (switch with the arrow keys):
 
 | Console style bars | Circular spectrum |
 |---|---|
-| ![Console style bars](screenshots/effect_ConsoleStyleBars.png) | ![Circular spectrum](screenshots/effect_CircularSpectrum.png) |
+| ![Console style bars](screenshots/effect_ConsoleStyleBars.png?v=2) | ![Circular spectrum](screenshots/effect_CircularSpectrum.png?v=2) |
 
 | Mirrored spectrum bars | Oscilloscope trail |
 |---|---|
-| ![Mirrored spectrum bars](screenshots/effect_MirroredSpectrumBars.png) | ![Oscilloscope trail](screenshots/effect_OscilloscopeTrail.png) |
+| ![Mirrored spectrum bars](screenshots/effect_MirroredSpectrumBars.png?v=2) | ![Oscilloscope trail](screenshots/effect_OscilloscopeTrail.png?v=2) |
 
 | Pulsing shapes | Beat particles |
 |---|---|
-| ![Pulsing shapes](screenshots/effect_PulsingShapes.png) | ![Beat particles](screenshots/effect_BeatParticles.png) |
+| ![Pulsing shapes](screenshots/effect_PulsingShapes.png?v=2) | ![Beat particles](screenshots/effect_BeatParticles.png?v=2) |
 
 | Lissajous / phase scope | Particle fountain |
 |---|---|
-| ![Lissajous / phase scope](screenshots/effect_Lissajous.png) | ![Particle fountain](screenshots/effect_ParticleFountain.png) |
+| ![Lissajous / phase scope](screenshots/effect_Lissajous.png?v=2) | ![Particle fountain](screenshots/effect_ParticleFountain.png?v=2) |
 
 | Starfield | Milkdrop-style |
 |---|---|
-| ![Starfield](screenshots/effect_Starfield.png) | ![Milkdrop-style](screenshots/effect_Milkdrop.png) |
+| ![Starfield](screenshots/effect_Starfield.png?v=2) | ![Milkdrop-style](screenshots/effect_Milkdrop.png?v=2) |
 
 | Stereo VU meters |
 |---|
-| ![Stereo VU meters](screenshots/effect_VUMeter.png) |
+| ![Stereo VU meters](screenshots/effect_VUMeter.png?v=2) |
 
 ## Installer
 
@@ -237,3 +237,4 @@ come.
 ## License
 
 This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
+
