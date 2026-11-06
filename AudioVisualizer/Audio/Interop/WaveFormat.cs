@@ -57,7 +57,7 @@ internal static class WaveFormatReader
         }
 
         return new AudioFormat(
-            (int)waveFormat.SamplesPerSecond,
+            checked((int)waveFormat.SamplesPerSecond), // ubs:ignore[cs.pattern.int-cast] -- checked cast rejects out-of-range sample rates
             waveFormat.Channels,
             waveFormat.BitsPerSample,
             encoding);

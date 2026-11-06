@@ -237,8 +237,9 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
 
             if (packetFrames == 0)
             {
-                // WASAPI loopback has no event handle; poll for new packets.
-                Thread.Sleep(5);
+                // WASAPI loopback has no event handle; poll for new packets but
+                // wake immediately when capture is cancelled.
+                cancellationToken.WaitHandle.WaitOne(5);
                 continue;
             }
 
@@ -255,8 +256,8 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
 
                 try
                 {
-                    var sampleCount = checked((int)frames * format.Channels);
-                    var byteCount = checked((int)frames * format.BlockAlign);
+                    var sampleCount = checked((int)frames * format.Channels); // ubs:ignore[cs.pattern.int-cast] -- checked context guards the narrowing cast
+                    var byteCount = checked((int)frames * format.BlockAlign); // ubs:ignore[cs.pattern.int-cast] -- checked context guards the narrowing cast
                     var isSilent = (flags & AudioClientBufferFlags.Silent) != 0;
 
                     if (sampleBuffer.Length < sampleCount)

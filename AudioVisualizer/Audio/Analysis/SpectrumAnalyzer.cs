@@ -181,8 +181,8 @@ public sealed class SpectrumAnalyzer
             var lowFrequency = Math.Exp(logMin + (logMax - logMin) * band / _bandCount);
             var highFrequency = Math.Exp(logMin + (logMax - logMin) * (band + 1) / _bandCount);
 
-            var start = (int)Math.Round(lowFrequency * _fftSize / sampleRate);
-            var end = (int)Math.Round(highFrequency * _fftSize / sampleRate);
+            var start = (int)Math.Round(lowFrequency * _fftSize / sampleRate); // ubs:ignore[cs.pattern.int-cast] -- frequency is capped at Nyquist, so the bin is well within Int32
+            var end = (int)Math.Round(highFrequency * _fftSize / sampleRate); // ubs:ignore[cs.pattern.int-cast] -- frequency is capped at Nyquist, so the bin is well within Int32
 
             _bandStart[band] = Math.Clamp(start, 1, maxBin);
             _bandEnd[band] = Math.Clamp(Math.Max(end, _bandStart[band] + 1), 2, maxBin + 1);

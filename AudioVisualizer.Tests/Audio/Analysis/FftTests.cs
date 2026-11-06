@@ -54,7 +54,7 @@ public sealed class FftTests
     {
         var real = new float[size];
         var imaginary = new float[size];
-        var random = new Random(size);
+        var random = new Random(size); // ubs:ignore[cs-weak-random] -- fixed seed keeps this numeric test deterministic; no security use
 
         for (var i = 0; i < size; i++)
         {
@@ -92,7 +92,7 @@ public sealed class FftTests
     {
         var real = new float[size];
         var imaginary = new float[size];
-        var random = new Random((size * 31) + 7);
+        var random = new Random((size * 31) + 7); // ubs:ignore[cs-weak-random] -- fixed seed keeps this numeric test deterministic; no security use
 
         for (var i = 0; i < size; i++)
         {

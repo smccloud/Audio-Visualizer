@@ -71,12 +71,12 @@ catch (Exception exception)
     return 1;
 }
 
-Console.WriteLine($"Capturing system audio ({capture.Format})");
-Console.WriteLine("Waiting for audio... press Ctrl+C to stop.");
+Console.WriteLine($"Capturing system audio ({capture.Format})"); // ubs:ignore[cs.pattern.console-write,cs-console-writeline] -- intended console UI output
+Console.WriteLine("Waiting for audio... press Ctrl+C to stop."); // ubs:ignore[cs.pattern.console-write,cs-console-writeline] -- intended console UI output
 
 await stop.Task;
 await capture.StopAsync();
 
-Console.WriteLine();
-Console.WriteLine("Stopped.");
+Console.WriteLine(); // ubs:ignore[cs.pattern.console-write,cs-console-writeline] -- intended console UI output
+Console.WriteLine("Stopped."); // ubs:ignore[cs.pattern.console-write,cs-console-writeline] -- intended console UI output
 return 0;

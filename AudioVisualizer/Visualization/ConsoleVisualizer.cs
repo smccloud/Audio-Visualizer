@@ -140,7 +140,7 @@ public sealed class ConsoleVisualizer
         output.AppendLine();
         output.AppendLine("  Press Ctrl+C to stop.");
 
-        Console.Write(output.ToString());
+        Console.Write(output.ToString()); // ubs:ignore[cs.pattern.console-write] -- intended console UI output
     }
 
     private void AppendFrequencyLabels(
