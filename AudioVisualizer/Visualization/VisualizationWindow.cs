@@ -56,6 +56,10 @@ public sealed class VisualizationWindow : Form
             new StarfieldEffect(),
             new MilkdropStyleEffect(),
             new VUMeterEffect(),
+            new WmpAmbientEffect(),
+            new WmpBarsEffect(),
+            new WmpScopeEffect(),
+            new WmpParticlesEffect(),
         };
 
         _effectIndex = LoadLastEffectIndex();
