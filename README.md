@@ -48,7 +48,7 @@ In console mode, press **Ctrl+C** to stop.
 
 ## Screenshots
 
-The five built-in effects (switch with the arrow keys):
+The built-in effects (switch with the arrow keys):
 
 | Console style bars | Circular spectrum |
 |---|---|
@@ -62,9 +62,17 @@ The five built-in effects (switch with the arrow keys):
 |---|---|
 | ![Pulsing shapes](screenshots/effect_PulsingShapes.png) | ![Beat particles](screenshots/effect_BeatParticles.png) |
 
-| Lissajous / phase scope |
+| Lissajous / phase scope | Particle fountain |
+|---|---|
+| ![Lissajous / phase scope](screenshots/effect_Lissajous.png) | ![Particle fountain](screenshots/effect_ParticleFountain.png) |
+
+| Starfield | Milkdrop-style |
+|---|---|
+| ![Starfield](screenshots/effect_Starfield.png) | ![Milkdrop-style](screenshots/effect_Milkdrop.png) |
+
+| Stereo VU meters |
 |---|
-| ![Lissajous / phase scope](screenshots/effect_Lissajous.png) |
+| ![Stereo VU meters](screenshots/effect_VUMeter.png) |
 
 ## Installer
 
