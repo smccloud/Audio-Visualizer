@@ -7,7 +7,7 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
 {
     public string Name => "Console-style bars";
 
-    private const int BandHeight = 16;
+    private const int BandHeight = 24;
     private float[] _leftDisplayed = Array.Empty<float>();
     private float[] _rightDisplayed = Array.Empty<float>();
     private VisualizationFrame? _lastFrame;
@@ -70,11 +70,11 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
                 48);
         }
 
-        var barWidth = 8;
-        var gap = 2;
+        var barWidth = 12;
+        var gap = 3;
         var originX = 10;
         var originY = 60;
-        var rowHeight = 12;
+        var rowHeight = 16;
 
         DrawBars(graphics, _leftDisplayed, originX, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
 
