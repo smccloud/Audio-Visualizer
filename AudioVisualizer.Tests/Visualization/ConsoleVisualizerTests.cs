@@ -149,6 +149,49 @@ public sealed class ConsoleVisualizerTests
         Assert.Contains("\x1b[0m", output);
     }
 
+    [Fact]
+    public void Render_WithNoBands_DoesNotThrow()
+    {
+        var format = new AudioFormat(48000, 2, 16, SampleEncoding.Pcm);
+        var levels = new AudioLevelSnapshot(
+            Array.Empty<float>(),
+            Array.Empty<float>(),
+            peak: 0f,
+            rms: 0f,
+            frameCount: 0);
+        var visualizer = new ConsoleVisualizer(height: 2, bandWidth: 2);
+
+        var output = CaptureRender(
+            visualizer,
+            Array.Empty<float>(),
+            Array.Empty<float>(),
+            levels,
+            format);
+
+        Assert.Contains("AUDIO VISUALIZER", output);
+        Assert.Contains("Press Ctrl+C to stop.", output);
+    }
+
+    [Fact]
+    public void Render_EasesBarsDownBetweenFrames()
+    {
+        var format = new AudioFormat(48000, 1, 16, SampleEncoding.Pcm);
+        var levels = new AudioLevelSnapshot(
+            new[] { 1f },
+            new[] { 1f },
+            peak: 1f,
+            rms: 1f,
+            frameCount: 480);
+        var visualizer = new ConsoleVisualizer(height: 4, bandWidth: 2);
+
+        CaptureRender(visualizer, new[] { 1f }, new[] { 1f }, levels, format);
+        var output = CaptureRender(visualizer, new[] { 0f }, new[] { 0f }, levels, format);
+
+        // The displayed value decays to 0.82 instead of snapping to zero, so
+        // the bar is still drawn one frame later.
+        Assert.Contains('\u2588', output);
+    }
+
     private static string CaptureRender(
         ConsoleVisualizer visualizer,
         float[] leftBands,

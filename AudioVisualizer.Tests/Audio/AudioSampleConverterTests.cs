@@ -29,6 +29,19 @@ public sealed class AudioSampleConverterTests
     }
 
     [Fact]
+    public void Convert_16BitPcm_ReadsLittleEndianBytes()
+    {
+        // 0x4000 and 0xC000 encoded little-endian (low byte first).
+        var source = new byte[] { 0x00, 0x40, 0x00, 0xC0 };
+        var destination = new float[2];
+
+        AudioSampleConverter.Convert(source, destination, PcmFormat(16));
+
+        AssertClose(0.5f, destination[0]);
+        AssertClose(-0.5f, destination[1]);
+    }
+
+    [Fact]
     public void Convert_24BitPcm_ScalesAndSignExtends()
     {
         int[] values = [0x010000, 0x7FFFFF, 0x800000, 0xFF0000];
@@ -104,12 +117,41 @@ public sealed class AudioSampleConverterTests
     }
 
     [Fact]
-    public void Convert_UnsupportedPcmSampleSize_Throws()
+    public void Convert_Non32BitFloat_Throws()
     {
-        var format = PcmFormat(8);
+        var format = new AudioFormat(48000, 1, 64, SampleEncoding.IeeeFloat);
 
         Assert.Throws<NotSupportedException>(() =>
-            AudioSampleConverter.Convert(new byte[1], new float[1], format));
+            AudioSampleConverter.Convert(new byte[8], new float[1], format));
+    }
+
+    [Theory]
+    [InlineData(8)]
+    [InlineData(12)]
+    [InlineData(64)]
+    public void Convert_UnsupportedPcmSampleSize_Throws(int bitsPerSample)
+    {
+        var format = PcmFormat(bitsPerSample);
+        var bytesPerSample = Math.Max(1, bitsPerSample / 8);
+
+        Assert.Throws<NotSupportedException>(() =>
+            AudioSampleConverter.Convert(new byte[bytesPerSample], new float[1], format));
+    }
+
+    [Fact]
+    public void Convert_ConvertsOnlyDestinationLengthSamples()
+    {
+        var source = new byte[4 * sizeof(short)];
+        BinaryPrimitives.WriteInt16LittleEndian(source.AsSpan(0, 2), 16384);
+        BinaryPrimitives.WriteInt16LittleEndian(source.AsSpan(2, 2), -16384);
+        BinaryPrimitives.WriteInt16LittleEndian(source.AsSpan(4, 2), short.MaxValue);
+        BinaryPrimitives.WriteInt16LittleEndian(source.AsSpan(6, 2), short.MinValue);
+
+        var destination = new float[2];
+        AudioSampleConverter.Convert(source, destination, PcmFormat(16));
+
+        AssertClose(0.5f, destination[0]);
+        AssertClose(-0.5f, destination[1]);
     }
 
     private static AudioFormat PcmFormat(int bitsPerSample) =>

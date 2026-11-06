@@ -83,6 +83,52 @@ public sealed class FftTests
         }
     }
 
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(8)]
+    [InlineData(16)]
+    public void Transform_WithComplexInput_MatchesNaiveDft(int size)
+    {
+        var real = new float[size];
+        var imaginary = new float[size];
+        var random = new Random((size * 31) + 7);
+
+        for (var i = 0; i < size; i++)
+        {
+            real[i] = (float)((random.NextDouble() * 2) - 1);
+            imaginary[i] = (float)((random.NextDouble() * 2) - 1);
+        }
+
+        var inputReal = (float[])real.Clone();
+        var inputImaginary = (float[])imaginary.Clone();
+        var expectedReal = new double[size];
+        var expectedImaginary = new double[size];
+
+        for (var bin = 0; bin < size; bin++)
+        {
+            for (var sample = 0; sample < size; sample++)
+            {
+                var angle = -2 * Math.PI * bin * sample / size;
+                var cosine = Math.Cos(angle);
+                var sine = Math.Sin(angle);
+
+                expectedReal[bin] +=
+                    (inputReal[sample] * cosine) - (inputImaginary[sample] * sine);
+                expectedImaginary[bin] +=
+                    (inputReal[sample] * sine) + (inputImaginary[sample] * cosine);
+            }
+        }
+
+        Fft.Transform(real, imaginary);
+
+        for (var bin = 0; bin < size; bin++)
+        {
+            Assert.Equal(expectedReal[bin], real[bin], precision: 4);
+            Assert.Equal(expectedImaginary[bin], imaginary[bin], precision: 4);
+        }
+    }
+
     [Fact]
     public void Transform_RejectsMismatchedBufferLengths()
     {

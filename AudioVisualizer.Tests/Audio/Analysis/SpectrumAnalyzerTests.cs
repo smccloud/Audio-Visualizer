@@ -12,11 +12,15 @@ public sealed class SpectrumAnalyzerTests
     [Fact]
     public void Constructor_RejectsInvalidArguments()
     {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new SpectrumAnalyzer(fftSize: 0));
         Assert.Throws<ArgumentOutOfRangeException>(() => new SpectrumAnalyzer(fftSize: 1));
         Assert.Throws<ArgumentException>(() => new SpectrumAnalyzer(fftSize: 3));
         Assert.Throws<ArgumentOutOfRangeException>(() => new SpectrumAnalyzer(bandCount: 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new SpectrumAnalyzer(bandCount: -1));
         Assert.Throws<ArgumentException>(() =>
             new SpectrumAnalyzer(minFrequency: 100, maxFrequency: 100));
+        Assert.Throws<ArgumentException>(() =>
+            new SpectrumAnalyzer(minFrequency: 200, maxFrequency: 100));
     }
 
     [Fact]
@@ -25,6 +29,15 @@ public sealed class SpectrumAnalyzerTests
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
 
         Assert.Equal(BandCount, analyzer.BandCount);
+    }
+
+    [Fact]
+    public void FrequencyProperties_ReturnConfiguredRange()
+    {
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
+
+        Assert.Equal(MinFrequency, analyzer.MinFrequency);
+        Assert.Equal(MaxFrequency, analyzer.MaxFrequency);
     }
 
     [Fact]
@@ -48,6 +61,19 @@ public sealed class SpectrumAnalyzerTests
         var bands = analyzer.Analyze(48000).leftBands;
 
         Assert.All(bands, band => Assert.Equal(0f, band, precision: 6));
+    }
+
+    [Fact]
+    public void Analyze_WithoutPushedSamples_ReturnsZeroBands()
+    {
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
+
+        var (leftBands, rightBands) = analyzer.Analyze(48000);
+
+        Assert.Equal(BandCount, leftBands.Length);
+        Assert.Equal(BandCount, rightBands.Length);
+        Assert.All(leftBands, band => Assert.Equal(0f, band, precision: 6));
+        Assert.All(rightBands, band => Assert.Equal(0f, band, precision: 6));
     }
 
     [Fact]
@@ -123,6 +149,14 @@ public sealed class SpectrumAnalyzerTests
     }
 
     [Fact]
+    public void AnalyzeRightChannel_RejectsInvalidSampleRate()
+    {
+        var analyzer = new SpectrumAnalyzer();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => analyzer.AnalyzeRightChannel(0));
+    }
+
+    [Fact]
     public void AnalyzeRightChannel_ReturnsOneValuePerBandWithinRange()
     {
         var analyzer = new SpectrumAnalyzer(FftSize, BandCount);
@@ -187,6 +221,49 @@ public sealed class SpectrumAnalyzerTests
         Assert.Equal(
             ExpectedBand(rightFrequency, sampleRate),
             Array.IndexOf(rightBands, rightBands.Max()));
+    }
+
+    [Fact]
+    public void Analyze_RightOnlyTone_LeavesLeftChannelSilent()
+    {
+        const int sampleRate = 48000;
+        const double frequency = 1000;
+        var analyzer = new SpectrumAnalyzer(FftSize, BandCount, MinFrequency, MaxFrequency);
+        var samples = new float[FftSize * 2];
+
+        for (var frame = 0; frame < FftSize; frame++)
+        {
+            samples[(frame * 2) + 1] =
+                (float)Math.Sin(2 * Math.PI * frequency * frame / sampleRate);
+        }
+
+        analyzer.Push(samples, channels: 2);
+        var (leftBands, rightBands) = analyzer.Analyze(sampleRate);
+        var expectedBand = ExpectedBand(frequency, sampleRate);
+
+        Assert.All(leftBands, band => Assert.Equal(0f, band, precision: 6));
+        Assert.Equal(expectedBand, Array.IndexOf(rightBands, rightBands.Max()));
+        Assert.True(rightBands[expectedBand] > 0.5f);
+    }
+
+    [Fact]
+    public void Push_IgnoresIncompleteFinalFrame()
+    {
+        const int sampleRate = 48000;
+        const double frequency = 1000;
+        var tone = CreateTone(sampleRate, frequency, FftSize, channels: 2);
+
+        var complete = new SpectrumAnalyzer(FftSize, BandCount);
+        complete.Push(tone, channels: 2);
+
+        var partial = new SpectrumAnalyzer(FftSize, BandCount);
+        partial.Push(tone, channels: 2);
+        // A single sample cannot form a stereo frame and must be ignored.
+        partial.Push(new[] { 0.75f }, channels: 2);
+
+        Assert.Equal(
+            complete.Analyze(sampleRate).leftBands,
+            partial.Analyze(sampleRate).leftBands);
     }
 
     private static float[] CreateTone(

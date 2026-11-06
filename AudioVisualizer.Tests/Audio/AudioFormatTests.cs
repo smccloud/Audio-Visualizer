@@ -4,13 +4,24 @@ namespace AudioVisualizer.Tests.Audio;
 
 public sealed class AudioFormatTests
 {
-    [Fact]
-    public void Properties_DescribeSampleAndFrameSize()
+    [Theory]
+    [InlineData(48000, 1, 16, SampleEncoding.Pcm, 2, 2)]
+    [InlineData(44100, 2, 16, SampleEncoding.Pcm, 2, 4)]
+    [InlineData(48000, 2, 24, SampleEncoding.Pcm, 3, 6)]
+    [InlineData(96000, 6, 24, SampleEncoding.Pcm, 3, 18)]
+    [InlineData(48000, 2, 32, SampleEncoding.IeeeFloat, 4, 8)]
+    public void Properties_DescribeSampleAndFrameSize(
+        int sampleRate,
+        int channels,
+        int bitsPerSample,
+        SampleEncoding encoding,
+        int expectedBytesPerSample,
+        int expectedBlockAlign)
     {
-        var format = new AudioFormat(48000, 2, 24, SampleEncoding.Pcm);
+        var format = new AudioFormat(sampleRate, channels, bitsPerSample, encoding);
 
-        Assert.Equal(3, format.BytesPerSample);
-        Assert.Equal(6, format.BlockAlign);
+        Assert.Equal(expectedBytesPerSample, format.BytesPerSample);
+        Assert.Equal(expectedBlockAlign, format.BlockAlign);
     }
 
     [Fact]
