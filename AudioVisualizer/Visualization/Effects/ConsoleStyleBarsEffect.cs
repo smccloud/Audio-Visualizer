@@ -71,7 +71,7 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
 
         var originX = 10;
         var originY = 60;
-        var maxBarHeight = Math.Max(40, bounds.Height - originY - 10);
+        var maxBarHeight = Math.Max(40, bounds.Height - originY - 70);
 
         var channels = _rightDisplayed.Length > 0 ? 2 : 1;
         var interChannelGap = 20;
@@ -89,6 +89,21 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
         {
             var rightOrigin = originX + (_leftDisplayed.Length * (barWidth + gap)) + interChannelGap;
             DrawBars(graphics, _rightDisplayed, rightOrigin, originY, barWidth, gap, maxBarHeight, greenBrush, yellowBrush, redBrush);
+        }
+
+        if (_lastFrame is not null)
+        {
+            using var labelFont = new Font("Consolas", 8f);
+            using var labelBrush = new SolidBrush(Color.White);
+            var labels = GetBandLabels(_leftDisplayed.Length, 30, 18000, _lastFrame.SampleRate);
+            DrawLabels(graphics, labels, originX, originY, maxBarHeight, barWidth, gap, labelFont, labelBrush);
+
+            if (_rightDisplayed.Length > 0)
+            {
+                var rightOrigin = originX + (_leftDisplayed.Length * (barWidth + gap)) + interChannelGap;
+                var rightLabels = GetBandLabels(_rightDisplayed.Length, 30, 18000, _lastFrame.SampleRate);
+                DrawLabels(graphics, rightLabels, rightOrigin, originY, maxBarHeight, barWidth, gap, labelFont, labelBrush);
+            }
         }
 
 
@@ -143,5 +158,61 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
                 graphics.FillRectangle(redBrush, x, baseY - greenHeight - yellowHeight - redHeight, barWidth, redHeight);
             }
         }
+    }
+
+    private static void DrawLabels(
+        Graphics graphics,
+        string[] labels,
+        int originX,
+        int originY,
+        int maxBarHeight,
+        int barWidth,
+        int gap,
+        Font font,
+        Brush brush)
+    {
+        var baseY = originY + maxBarHeight + 2;
+
+        for (var band = 0; band < labels.Length; band++)
+        {
+            var x = originX + band * (barWidth + gap) + (barWidth / 2);
+            var state = graphics.Save();
+            graphics.TranslateTransform(x, baseY);
+            graphics.RotateTransform(90f);
+            graphics.DrawString(labels[band], font, brush, 0, 0);
+            graphics.Restore(state);
+        }
+    }
+
+    private static string[] GetBandLabels(int bandCount, double minFrequency, double maxFrequency, int sampleRate)
+    {
+        var labels = new string[bandCount];
+        if (bandCount == 0)
+        {
+            return labels;
+        }
+
+        var nyquist = sampleRate / 2.0;
+        var maxFreq = Math.Min(maxFrequency, nyquist);
+        var minFreq = Math.Min(minFrequency, maxFreq);
+        if (minFreq <= 0)
+        {
+            minFreq = 1;
+        }
+
+        var logMin = Math.Log(minFreq);
+        var logMax = Math.Log(maxFreq);
+
+        for (var band = 0; band < bandCount; band++)
+        {
+            var fraction = (band + 0.5) / bandCount;
+            var frequency = Math.Exp(logMin + ((logMax - logMin) * fraction));
+            var rounded = Math.Round(frequency, MidpointRounding.AwayFromZero);
+            labels[band] = rounded < 10000
+                ? $"{rounded:0}Hz"
+                : $"{rounded / 1000:0}kHz";
+        }
+
+        return labels;
     }
 }
