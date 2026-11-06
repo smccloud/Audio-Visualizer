@@ -125,9 +125,9 @@ public sealed class VUMeterEffect : IVisualizationEffect
 
     private static void DrawNeedle(Graphics graphics, Rectangle rect, float level, float peak, string label)
     {
-        var cx = rect.Left + rect.Width / 2f;
-        var cy = rect.Bottom - 10;
-        var radius = Math.Min(rect.Width, rect.Height) * 0.9f;
+        var cx = rect.Left + rect.Width * 0.5f;
+        var cy = rect.Top + rect.Height * (470f / 550f);
+        var radius = rect.Width * (220f / 550f);
 
         // Needle
         var angleDeg = 200f + level * 140f;
@@ -143,8 +143,8 @@ public sealed class VUMeterEffect : IVisualizationEffect
         if (peak > 0)
         {
             var peakAngle = (float)((200f + peak * 140f) * Math.PI / 180.0);
-            var px = cx + (float)Math.Cos(peakAngle) * radius * 0.78f;
-            var py = cy + (float)Math.Sin(peakAngle) * radius * 0.78f;
+            var px = cx + (float)Math.Cos(peakAngle) * radius * 0.75f;
+            var py = cy + (float)Math.Sin(peakAngle) * radius * 0.75f;
             using var peakBrush = new SolidBrush(Color.Red);
             graphics.FillEllipse(peakBrush, px - 3, py - 3, 6, 6);
         }
