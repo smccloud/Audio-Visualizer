@@ -62,6 +62,10 @@ The five built-in effects (switch with the arrow keys):
 |---|---|
 | ![Pulsing shapes](screenshots/effect_PulsingShapes.png) | ![Beat particles](screenshots/effect_BeatParticles.png) |
 
+| Lissajous / phase scope |
+|---|
+| ![Lissajous / phase scope](screenshots/effect_Lissajous.png) |
+
 ## Installer
 
 `installer/AudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
