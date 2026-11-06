@@ -1,0 +1,132 @@
+// Jenkins CI for Windows-specific builds of the AudioVisualizer solution
+//
+// This pipeline runs on a Windows agent and builds the MSI installer
+// using WiX Toolset v6.0.2. It should be triggered separately from
+// the Linux pipeline.
+//
+// Prerequisites:
+//   * A .NET 10 SDK on PATH
+//   * WiX Toolset v6.0.2 installed
+//   * Jenkins MSTest plugin for test results
+//
+
+pipeline {
+    agent { label 'Windows-Agent' }
+    triggers {
+        githubPush()
+    }
+    
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '15'))
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    
+    environment {
+        CONFIGURATION              = 'Release'
+        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+        SOLUTION                   = 'AudioVisualizer.slnx'
+        PUBLISH_DIR                = 'publish'
+        INSTALLER_DIR              = 'installer'
+        ARTIFACT_DIR               = 'artifacts'
+    }
+    
+    stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    echo 'Preparing build environment...'
+                    bat "dotnet --info"
+                    bat "echo SDK version: ${env.DOTNET_CLI_TELEMETRY_OPTOUT}"
+                    
+                    // Create artifacts directory
+                    dir('${ARTIFACT_DIR}') {
+                        bat 'if not exist . mkdir .'
+                    }
+                }
+            }
+        }
+        
+        stage('Restore') {
+            steps {
+                script {
+                    echo 'Restoring NuGet packages...'
+                    bat "dotnet restore ${SOLUTION} --verbosity quiet"
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                script {
+                    echo 'Building solution...'
+                    bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --verbosity quiet"
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                script {
+                    echo 'Running tests...'
+                    bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger 'trx;LogFileName=results.trx' --results-directory TestResults"
+                    currentBuild.displayName = "${currentBuild.displayName} [Tests Run]"
+                    env.TESTS_RUN = 'true'
+                }
+            }
+        }
+        
+        stage('Publish') {
+            steps {
+                script {
+                    echo 'Publishing win-x64 application...'
+                    bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --verbosity quiet --output ${PUBLISH_DIR}"
+                }
+            }
+        }
+        
+        stage('Build Installer') {
+            steps {
+                script {
+                    echo 'Building MSI installer...'
+                    bat "dotnet build ${INSTALLER_DIR}/AudioVisualizer.Installer.wixproj --configuration ${CONFIGURATION} --verbosity quiet"
+                    
+                    // Copy MSI to artifacts directory
+                    bat "if exist ${INSTALLER_DIR}/bin/${CONFIGURATION}/AudioVisualizer.Installer.msi (
+                        mkdir ${ARTIFACT_DIR} 2>nul
+                        copy ${INSTALLER_DIR}/bin/${CONFIGURATION}/AudioVisualizer.Installer.msi ${ARTIFACT_DIR}/
+                    )"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Archive test results
+                if (env.TESTS_RUN == 'true') {
+                    junit '**/TestResults/*.trx'
+                    archiveArtifacts artifacts: '**/TestResults/*.trx', fingerprint: true
+                }
+                
+                // Archive MSI installer
+                archiveArtifacts artifacts: '${ARTIFACT_DIR}/AudioVisualizer.Installer.msi', fingerprint: true
+            }
+        }
+        
+        success {
+            echo 'Build completed successfully!'
+        }
+        
+        failure {
+            echo 'Build failed!'
+            currentBuild.result = 'FAILURE'
+        }
+        
+        aborted {
+            echo 'Build was aborted!'
+            currentBuild.result = 'ABORTED'
+        }
+    }
+}
