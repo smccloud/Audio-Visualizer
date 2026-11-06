@@ -64,11 +64,31 @@ pipeline {
 		
 		stage('Ultimate Bug Scanner (WSL)') {
             steps {
-                echo 'Triggering UBS inside Windows Subsystem for Linux...'
-                
-                // 1. 'wsl' invokes the default Linux distribution
-                // 2. We explicitly pass '.' so it evaluates the current workspace directory mapped into WSL
-                bat 'wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update /mnt/c/Jenkins/workspace/Audio-Visualizer'
+                script {
+                    echo 'Running UBS against every C# source file...'
+
+                    // `wsl <cmd>` cannot use Windows paths, so translate the
+                    // workspace to its /mnt/<drive> form and pass every source
+                    // file explicitly with forward slashes.
+                    def windowsWorkspace = WORKSPACE.replace('\\', '/')
+                    def wslWorkspace = '/mnt/' + windowsWorkspace[0].toLowerCase() +
+                        windowsWorkspace.substring(2)
+                    def sourceRoot = "${WORKSPACE}\\AudioVisualizer"
+
+                    def sourceFiles = bat(
+                        script: "@dir /b /s \"${sourceRoot}\\*.cs\"",
+                        returnStdout: true
+                    ).readLines()
+                        .collect { it.trim() }
+                        .findAll {
+                            it.toLowerCase().endsWith('.cs') &&
+                                !it.contains('\\bin\\') &&
+                                !it.contains('\\obj\\')
+                        }
+                        .collect { it.replace('\\', '/').replace(windowsWorkspace, wslWorkspace) }
+
+                    bat "wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update ${sourceFiles.join(' ')}"
+                }
             }
         }
 
