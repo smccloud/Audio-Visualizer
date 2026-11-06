@@ -12,11 +12,13 @@
 //   * A .NET 10 SDK on PATH (the pipeline prints `dotnet --info` to confirm).
 //   * The Jenkins MSTest plugin is required to publish the TRX test results.
 //
-// Agent: `any`; the platform is detected at runtime by the 'Detect platform'
-// stage. To pin the pipeline, replace `agent any` with a label.
+// Agent: pinned to 'Windows-Agent'. The built-in (controller) node is never
+// used, even when it is the only node online. The runtime platform check below
+// is kept as a safety net, but on this label it always takes the Windows path.
 
 pipeline {
-    agent any
+    // Never schedule on the built-in node: only the Windows agent is eligible.
+    agent { label 'Windows-Agent' }
     triggers {
         githubPush()
     }

@@ -97,30 +97,30 @@ automatically and publishes the results through the Jenkins MSTest plugin.
 
 ## Continuous integration
 
-`Jenkinsfile` builds and publishes the solution on whichever agent it lands on
-(`agent any`); the agent needs a .NET 10 SDK on its `PATH`, and `global.json`
-pins the 10.0 SDK feature band. A `Detect platform` stage uses `isUnix()` to
-pick the right solution:
+`Jenkinsfile` builds and publishes the solution on the `Windows-Agent` node. The
+agent is pinned by label, so the built-in (controller) node is never scheduled —
+if no Windows agent is online the build waits in the queue instead. The agent
+needs a .NET 10 SDK on its `PATH`, and `global.json` pins the 10.0 SDK feature
+band.
 
-- **Windows nodes** build the full `AudioVisualizer.slnx`, including the WiX
-  installer project, and publish a self-contained, single-file `win-x64` build.
-  The pipeline:
-  - restores and builds in Release with warnings as errors
-  - runs the unit tests and publishes TRX results with the MSTest plugin
-  - publishes and archives the self-contained `win-x64` build
-  - produces and archives the MSI through the installer project
-- **Linux/non-Windows nodes** build and test
-  `AudioVisualizer.Linux.slnf`, which excludes the WiX installer project (WiX
-  cannot produce an MSI on Linux), and publish a framework-dependent `win-x64`
-  build:
+The pipeline builds the full `AudioVisualizer.slnx`, including the WiX installer
+project, and:
+
+- restores and builds in Release with warnings as errors
+- runs the unit tests and publishes TRX results with the MSTest plugin
+- publishes and archives a self-contained, single-file `win-x64` build
+- produces and archives the MSI through the installer project
+
+For a Linux-only build outside Jenkins, use `AudioVisualizer.Linux.slnf`, which
+excludes the WiX installer project (WiX cannot produce an MSI on Linux):
 
 ```bash
 dotnet build AudioVisualizer.Linux.slnf --configuration Release
 dotnet test AudioVisualizer.Linux.slnf --configuration Release --no-build
 ```
 
-The app targets `net10.0-windows`, so Linux agents can build, test, and package
-it but cannot run it.
+The app targets `net10.0-windows`, so Linux machines can build, test, and
+package it but cannot run it.
 
 `Jenkinsfile.Windows` is a minimal installer-only pipeline for jobs that just
 need the MSI: it builds `installer/AudioVisualizer.Installer.wixproj` (which
