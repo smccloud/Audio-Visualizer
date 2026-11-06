@@ -84,7 +84,7 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
             DrawBars(graphics, _rightDisplayed, rightOrigin, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
         }
 
-        graphics.DrawString("Press Esc to exit.", font, headerBrush, 10, bounds.Height - 24);
+
     }
 
     private static void DrawBars(
