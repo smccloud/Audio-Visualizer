@@ -60,6 +60,20 @@ pipeline {
                 checkout scm
             }
         }
+		
+		stage('Ultimate Bug Scanner') {
+            agent {
+                docker { 
+                    image 'dicklesworthstone/ultimate_bug_scanner:latest' 
+                    // Reuse the workspace folder inside the container
+                    args '-v ${WORKSPACE}:/workspace -w /workspace'
+                }
+            }
+            steps {
+                // Execute the scanner binary inside the container
+                sh 'ubs --path .'
+            }
+        }
 
         stage('Verify SDK') {
             steps {
