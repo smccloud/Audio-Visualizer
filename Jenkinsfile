@@ -22,7 +22,7 @@ pipeline {
     // }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '15'))
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
         // Take control of checkout so the workspace can be wiped first.
