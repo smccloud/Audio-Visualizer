@@ -6,7 +6,7 @@
       Id="ShaunMcCloud.AudioVisualizer"
       Name="Audio Visualizer"
       Manufacturer="Shaun McCloud"
-      Version="1.0.0"
+      Version="0.1.0"
       UpgradeCode="B8C8D1F6-26DB-4EE4-AC54-907294B7C911"
       Scope="perMachine"
       Language="1033"

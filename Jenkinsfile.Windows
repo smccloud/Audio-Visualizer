@@ -60,15 +60,19 @@ pipeline {
             steps {
                 // Building the WiX project also triggers its PublishApplication
                 // target, which produces the self-contained win-x64 payload.
-                bat "dotnet build ${INSTALLER_PROJECT} --configuration ${CONFIGURATION}"
+                // -p:Platform=x64 keeps the output at bin\x64\Release.
+                bat "dotnet build ${INSTALLER_PROJECT} --configuration ${CONFIGURATION} -p:Platform=x64"
                 bat "dir ${MSI_PATH}"
+                // Publish a stable, easy-to-download copy as a build artifact.
+                bat "if not exist artifacts mkdir artifacts"
+                bat "copy /y ${MSI_PATH} artifacts\\AudioVisualizer.msi"
             }
         }
     }
 
     post {
         success {
-            archiveArtifacts artifacts: 'installer/bin/**/*.msi', fingerprint: true
+            archiveArtifacts artifacts: 'artifacts/AudioVisualizer.msi', fingerprint: true
         }
         always {
             echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"

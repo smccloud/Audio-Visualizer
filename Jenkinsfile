@@ -85,9 +85,13 @@ pipeline {
                 // The solution build normally produces the MSI. Build the WiX
                 // project explicitly and verify the output so a skipped or
                 // silently failed installer can never pass the pipeline.
-                bat "dotnet build ${INSTALLER_PROJECT} --configuration ${CONFIGURATION} --no-restore --warnaserror"
+                // -p:Platform=x64 keeps the output at bin\x64\Release.
+                bat "dotnet build ${INSTALLER_PROJECT} --configuration ${CONFIGURATION} --no-restore --warnaserror -p:Platform=x64"
                 bat "if not exist ${MSI_PATH} exit /b 1"
                 bat "dir ${MSI_PATH}"
+                // Publish a stable, easy-to-download copy as a build artifact.
+                bat 'if not exist artifacts mkdir artifacts'
+                bat "copy /y ${MSI_PATH} artifacts\\AudioVisualizer.msi"
             }
         }
 
@@ -141,7 +145,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: 'publish/**, installer/bin/**/*.msi', fingerprint: true
+            archiveArtifacts artifacts: 'publish/**, artifacts/AudioVisualizer.msi', fingerprint: true
         }
         always {
             echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"
