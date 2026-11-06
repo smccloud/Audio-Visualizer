@@ -30,8 +30,8 @@ pipeline {
         DOTNET_NOLOGO = '1'
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
         DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
-        INSTALLER_PROJECT = 'installer/AudioVisualizer.Installer.wixproj'
-        MSI_PATH = 'installer\\bin\\x64\\Release\\AudioVisualizer.msi'
+        INSTALLER_PROJECT = 'installer/ShaunsAudioVisualizer.Installer.wixproj'
+        MSI_PATH = 'installer\\bin\\x64\\Release\\ShaunsAudioVisualizer.msi'
     }
 
     stages {
@@ -65,14 +65,14 @@ pipeline {
                 bat "dir ${MSI_PATH}"
                 // Publish a stable, easy-to-download copy as a build artifact.
                 bat "if not exist artifacts mkdir artifacts"
-                bat "copy /y ${MSI_PATH} artifacts\\AudioVisualizer.msi"
+                bat "copy /y ${MSI_PATH} artifacts\\ShaunsAudioVisualizer.msi"
             }
         }
     }
 
     post {
         success {
-            archiveArtifacts artifacts: 'artifacts/AudioVisualizer.msi', fingerprint: true
+            archiveArtifacts artifacts: 'artifacts/ShaunsAudioVisualizer.msi', fingerprint: true
         }
         always {
             echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"

@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj" />
+  <Project Path="ShaunsAudioVisualizer.Tests/ShaunsAudioVisualizer.Tests.csproj" />
+  <Project Path="ShaunsAudioVisualizer.Windows.Tests/ShaunsAudioVisualizer.Windows.Tests.csproj" />  <Project Path="installer/ShaunsAudioVisualizer.Installer.wixproj">
+    <Platform Solution="*|Any CPU" Project="x64" />
+    <Build Solution="*|Any CPU" Project="true" />
+  </Project>
+</Solution>

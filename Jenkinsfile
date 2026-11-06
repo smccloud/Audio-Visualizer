@@ -1,4 +1,4 @@
-// Jenkins CI for the .NET 10 AudioVisualizer solution on Windows.
+// Jenkins CI for the .NET 10 ShaunsAudioVisualizer solution on Windows.
 //
 // Agent: pinned to 'Windows-Agent'. The built-in (controller) node is never
 // used, even when it is the only node online; if no Windows agent is available
@@ -10,7 +10,7 @@
 //     (the scanner is installed into the WSL user's ~/.local/bin on first use).
 //   * The Jenkins MSTest plugin is required to publish the TRX test results.
 //
-// The Windows installer (installer/AudioVisualizer.Installer.wixproj) is built
+// The Windows installer (installer/ShaunsAudioVisualizer.Installer.wixproj) is built
 // from a self-contained win-x64 publish. This pipeline builds the MSI.
 
 pipeline {
@@ -39,9 +39,9 @@ pipeline {
         // Keep SDK/NuGet state inside the workspace so builds do not depend on
         // the Jenkins user's home directory.
         DOTNET_CLI_HOME            = "${WORKSPACE}/.dotnet"
-        SOLUTION                   = 'AudioVisualizer.slnx'
-        INSTALLER_PROJECT          = 'installer/AudioVisualizer.Installer.wixproj'
-        MSI_PATH                   = 'installer\\bin\\x64\\Release\\AudioVisualizer.msi'
+        SOLUTION                   = 'ShaunsAudioVisualizer.slnx'
+        INSTALLER_PROJECT          = 'installer/ShaunsAudioVisualizer.Installer.wixproj'
+        MSI_PATH                   = 'installer\\bin\\x64\\Release\\ShaunsAudioVisualizer.msi'
     }
 
     stages {
@@ -74,7 +74,7 @@ pipeline {
                     // UBS still exits non-zero when it reports findings, so
                     // treat the scan as advisory and keep the SARIF report.
                     def ubsStatus = bat(
-                        script: 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --output=/mnt/c/Jenkins/workspace/Audio-Visualizer/ubs.sarif /mnt/c/Jenkins/workspace/Audio-Visualizer/*"',
+                        script: 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --output=/mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/ubs.sarif /mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/*"',
                         returnStatus: true
                     )
                     echo "UBS finished with exit code ${ubsStatus} (0 = clean, 1 = findings)."
@@ -113,7 +113,7 @@ pipeline {
                 bat "dir ${MSI_PATH}"
                 // Publish a stable, easy-to-download copy as a build artifact.
                 bat 'if not exist artifacts mkdir artifacts'
-                bat "copy /y ${MSI_PATH} artifacts\\AudioVisualizer.msi"
+                bat "copy /y ${MSI_PATH} artifacts\\ShaunsAudioVisualizer.msi"
             }
         }
 
@@ -122,7 +122,7 @@ pipeline {
                 script {
                     // No Pipeline Utility Steps plugin here, so probe the known
                     // test project directly instead of globbing.
-                    if (fileExists('AudioVisualizer.Tests/AudioVisualizer.Tests.csproj')) {
+                    if (fileExists('ShaunsAudioVisualizer.Tests/ShaunsAudioVisualizer.Tests.csproj')) {
                         bat 'if exist TestResults rmdir /s /q TestResults'
                         // Single quotes are not stripped by cmd.exe, so the
                         // logger must be passed without quoting: a quoted value
@@ -159,7 +159,7 @@ pipeline {
                 // Match the shape the installer consumes: self-contained,
                 // single-file, so no .NET runtime is needed on the target.
                 bat 'if exist publish rmdir /s /q publish'
-                bat "dotnet publish AudioVisualizer/AudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false --output publish"
+                bat "dotnet publish ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false --output publish"
                 bat 'dir publish'
             }
         }
@@ -167,7 +167,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: 'publish/**, artifacts/AudioVisualizer.msi', fingerprint: true
+            archiveArtifacts artifacts: 'publish/**, artifacts/ShaunsAudioVisualizer.msi', fingerprint: true
         }
         always {
             echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"

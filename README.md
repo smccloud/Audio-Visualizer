@@ -1,6 +1,6 @@
 # Audio Visualizer
 
-[![Build Status](https://jenkins.smccloud.com/buildStatus/icon?job=Audio-Visualizer&style=plastic)](https://jenkins.smccloud.com/job/Audio-Visualizer/)
+[![Build Status](https://jenkins.smccloud.com/buildStatus/icon?job=Shauns-Audio-Visualizer&style=plastic)](https://jenkins.smccloud.com/job/Shauns-Audio-Visualizer/)
 
 A .NET 10 recreation of the kind of audio visualizer that shipped with Windows in
 the 1990s — the abstract, music-driven animations many of us remember from that
@@ -29,8 +29,8 @@ visualizations: fluid, colorful, reactive shapes that move with the music.
 ## Getting started
 
 ```bash
-dotnet build AudioVisualizer.slnx
-dotnet run --project AudioVisualizer/AudioVisualizer.csproj
+dotnet build ShaunsAudioVisualizer.slnx
+dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj
 ```
 
 By default the app opens a graphical visualization window. Use the arrow keys to
@@ -41,7 +41,7 @@ For the original text-based renderer (useful when troubleshooting the audio
 pipeline), run with `--console`:
 
 ```bash
-dotnet run --project AudioVisualizer/AudioVisualizer.csproj -- --console
+dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj -- --console
 ```
 
 In console mode, press **Ctrl+C** to stop.
@@ -76,7 +76,7 @@ The built-in effects (switch with the arrow keys):
 
 ## Installer
 
-`installer/AudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
+`installer/ShaunsAudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
 v7 project that packages the app as a Windows Installer (MSI). It publishes a
 self-contained, single-file `win-x64` build first, so the installed app does not
 need a separate .NET runtime.
@@ -84,15 +84,15 @@ need a separate .NET runtime.
 Build the MSI on Windows:
 
 ```powershell
-dotnet build AudioVisualizer.slnx --configuration Release
-# MSI: installer\bin\x64\Release\AudioVisualizer.msi
+dotnet build ShaunsAudioVisualizer.slnx --configuration Release
+# MSI: installer\bin\x64\Release\ShaunsAudioVisualizer.msi
 ```
 
 To build only the installer:
 
 ```powershell
-dotnet build installer/AudioVisualizer.Installer.wixproj --configuration Release
-# MSI: installer\bin\Release\AudioVisualizer.msi
+dotnet build installer/ShaunsAudioVisualizer.Installer.wixproj --configuration Release
+# MSI: installer\bin\Release\ShaunsAudioVisualizer.msi
 ```
 
 The MSI installs to `C:\Program Files\Audio Visualizer`, adds a Start Menu
@@ -100,12 +100,12 @@ shortcut, and registers an entry in **Apps & features**. It uses the standard
 WiX install-directory UI with a license page.
 
 > **Note:** WiX can only build MSI packages on Windows. On other platforms use
-> `AudioVisualizer.Linux.slnf`, which excludes the installer. The MSI must be
+> `ShaunsAudioVisualizer.Linux.slnf`, which excludes the installer. The MSI must be
 > built on a Windows machine.
 
 ## Testing
 
-`AudioVisualizer.Tests` is an xUnit project covering the platform-independent
+`ShaunsAudioVisualizer.Tests` is an xUnit project covering the platform-independent
 audio analysis and conversion code: the FFT, spectrum bands, level metering,
 PCM/float sample conversion, audio format helpers, and the console renderer.
 These are pure logic tests and never open an audio device, so they run on both
@@ -114,31 +114,31 @@ Windows and Linux even though the app targets `net10.0-windows`.
 Run the suite from the repository root:
 
 ```bash
-dotnet test AudioVisualizer.slnx
+dotnet test ShaunsAudioVisualizer.slnx
 ```
 
 On Linux, use the solution filter that excludes the Windows-only installer:
 
 ```bash
-dotnet test AudioVisualizer.Linux.slnf
+dotnet test ShaunsAudioVisualizer.Linux.slnf
 ```
 
 To match CI, build in Release and run the already-built tests:
 
 ```bash
-dotnet build AudioVisualizer.Linux.slnf --configuration Release
-dotnet test AudioVisualizer.Linux.slnf --configuration Release --no-build
+dotnet build ShaunsAudioVisualizer.Linux.slnf --configuration Release
+dotnet test ShaunsAudioVisualizer.Linux.slnf --configuration Release --no-build
 ```
 
-In Visual Studio, open `AudioVisualizer.slnx` and use **Test > Test Explorer**
+In Visual Studio, open `ShaunsAudioVisualizer.slnx` and use **Test > Test Explorer**
 to run or debug individual tests. The Jenkins pipeline finds the test project
 automatically and publishes the results through the Jenkins MSTest plugin.
 
 ### Windows-specific tests
 
-`AudioVisualizer.Windows.Tests` is an xUnit project that covers the Windows
+`ShaunsAudioVisualizer.Windows.Tests` is an xUnit project that covers the Windows
 interop and WASAPI capture layer. It targets `net10.0-windows` and is included
-in `AudioVisualizer.slnx`, so Visual Studio Test Explorer discovers it
+in `ShaunsAudioVisualizer.slnx`, so Visual Studio Test Explorer discovers it
 automatically on a Windows developer machine.
 
 The interop and lifecycle tests do not need a live audio stream:
@@ -164,34 +164,34 @@ Prerequisites:
 - .NET 10 SDK
 - An audio playback device for the smoke test
 
-Running from Visual Studio: open `AudioVisualizer.slnx`, build the solution, and
+Running from Visual Studio: open `ShaunsAudioVisualizer.slnx`, build the solution, and
 use **Test > Test Explorer**. The Windows tests appear alongside the
 cross-platform tests.
 
 Running from the command line:
 
 ```powershell
-dotnet test AudioVisualizer.slnx
+dotnet test ShaunsAudioVisualizer.slnx
 ```
 
 Run everything except the hardware-dependent smoke tests:
 
 ```powershell
-dotnet test AudioVisualizer.slnx --filter "Category!=WindowsAudio"
+dotnet test ShaunsAudioVisualizer.slnx --filter "Category!=WindowsAudio"
 ```
 
 Run only the hardware-dependent smoke tests:
 
 ```powershell
-dotnet test AudioVisualizer.slnx --filter "Category=WindowsAudio"
+dotnet test ShaunsAudioVisualizer.slnx --filter "Category=WindowsAudio"
 ```
 
 These tests cannot run on the Linux Jenkins agent because they target
 `net10.0-windows` and exercise Windows Core Audio APIs. Linux builds use
-`AudioVisualizer.Linux.slnf`, which excludes both the installer and the
+`ShaunsAudioVisualizer.Linux.slnf`, which excludes both the installer and the
 Windows test project, so `dotnet test` on Linux stays green. The
-cross-platform tests in `AudioVisualizer.Tests` and the Windows tests in
-`AudioVisualizer.Windows.Tests` together cover the whole solution: pure logic
+cross-platform tests in `ShaunsAudioVisualizer.Tests` and the Windows tests in
+`ShaunsAudioVisualizer.Windows.Tests` together cover the whole solution: pure logic
 on every platform, Windows interop and capture lifecycle only where the
 required APIs exist.
 
@@ -203,7 +203,7 @@ if no Windows agent is online the build waits in the queue instead. The agent
 needs a .NET 10 SDK on its `PATH`, and `global.json` pins the 10.0 SDK feature
 band.
 
-The pipeline builds the full `AudioVisualizer.slnx`, including the WiX installer
+The pipeline builds the full `ShaunsAudioVisualizer.slnx`, including the WiX installer
 project, and:
 
 - restores and builds in Release with warnings as errors
@@ -213,19 +213,19 @@ project, and:
 - runs Ultimate Bug Scanner (UBS) inside WSL; UBS is installed into the WSL
   user's `~/.local/bin` on first use
 
-For a Linux-only build outside Jenkins, use `AudioVisualizer.Linux.slnf`, which
+For a Linux-only build outside Jenkins, use `ShaunsAudioVisualizer.Linux.slnf`, which
 excludes the WiX installer project (WiX cannot produce an MSI on Linux):
 
 ```bash
-dotnet build AudioVisualizer.Linux.slnf --configuration Release
-dotnet test AudioVisualizer.Linux.slnf --configuration Release --no-build
+dotnet build ShaunsAudioVisualizer.Linux.slnf --configuration Release
+dotnet test ShaunsAudioVisualizer.Linux.slnf --configuration Release --no-build
 ```
 
 The app targets `net10.0-windows`, so Linux machines can build, test, and
 package it but cannot run it.
 
 `Jenkinsfile.Windows` is a minimal installer-only pipeline for jobs that just
-need the MSI: it builds `installer/AudioVisualizer.Installer.wixproj` (which
+need the MSI: it builds `installer/ShaunsAudioVisualizer.Installer.wixproj` (which
 publishes the app payload itself) and archives the resulting MSI.
 
 ## Status
