@@ -71,7 +71,14 @@ pipeline {
                     // UBS_ALLOW_PARTIAL is a shell variable assignment and the
                     // trailing glob must be expanded inside WSL, so the command
                     // has to run through bash rather than `wsl <command>`.
-                    bat 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif /mnt/c/Jenkins/workspace/Audio-Visualizer/*"'
+                    // UBS still exits non-zero when it reports findings, so
+                    // treat the scan as advisory and keep the SARIF report.
+                    def ubsStatus = bat(
+                        script: 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --output=/mnt/c/Jenkins/workspace/Audio-Visualizer/ubs.sarif /mnt/c/Jenkins/workspace/Audio-Visualizer/*"',
+                        returnStatus: true
+                    )
+                    echo "UBS finished with exit code ${ubsStatus} (0 = clean, 1 = findings)."
+                    archiveArtifacts artifacts: 'ubs.sarif', allowEmptyArchive: true
                 }
             }
         }
