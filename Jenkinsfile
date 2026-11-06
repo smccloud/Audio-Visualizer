@@ -87,7 +87,7 @@ pipeline {
                         }
                         .collect { it.replace('\\', '/').replace(windowsWorkspace, wslWorkspace) }
 
-                    bat "wsl /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update ${sourceFiles.join(' ')}"
+                    bat "wsl UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update ${sourceFiles.join(' ')}"
                 }
             }
         }
