@@ -51,6 +51,7 @@ public sealed class VisualizationWindow : Form
             new PulsingShapesEffect(),
             new BeatParticlesEffect(),
             new LissajousEffect(),
+            new ParticleFountainEffect(),
         };
 
         _effectIndex = LoadLastEffectIndex();
