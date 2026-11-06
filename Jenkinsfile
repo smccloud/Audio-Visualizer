@@ -47,9 +47,13 @@ pipeline {
     stages {
         stage('Clean workspace') {
             steps {
-                // Wipe stale bin/obj/publish/MSI output from previous runs
-                // before checking out the current revision.
-                cleanWs()
+                // Wipe the entire workspace (bin/obj/publish/MSI output and any
+                // other leftovers) before building. Deferred wipeout is
+                // disabled so the files are really gone before the build
+                // starts instead of at the end of the run; deleteDir() catches
+                // anything cleanWs leaves behind.
+                cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                deleteDir()
             }
         }
 
