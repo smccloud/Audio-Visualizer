@@ -51,7 +51,7 @@ pipeline {
                     // Windows builds the WiX installer; Linux uses the filter
                     // that excludes it.
                     env.SOLUTION = windows ? 'AudioVisualizer.slnx' : 'AudioVisualizer.Linux.slnf'
-                    currentBuild.displayName = "${currentBuild.displayName} [${windows ? 'Windows' : 'Linux'}]"
+                    currentBuild.displayName = "${currentBuild.displayName} [${windows ? 'Windows' : 'All'}]"
                     echo "Running on ${env.NODE_NAME} (${windows ? 'Windows' : 'non-Windows'}); solution: ${env.SOLUTION}"
                 }
             }
