@@ -53,6 +53,9 @@ public sealed class VisualizationWindow : Form
             new LissajousEffect(),
         };
 
+        _effectIndex = LoadLastEffectIndex();
+        Text = $"Audio Visualizer - {_effects[_effectIndex].Name}";
+
         _capture = new WasapiLoopbackCapture();
 
         _timer = new System.Windows.Forms.Timer { Interval = 16 };
@@ -181,12 +184,14 @@ public sealed class VisualizationWindow : Form
                 _effectIndex = (_effectIndex + 1) % _effects.Count;
                 _effects[_effectIndex].Reset();
                 Text = $"Audio Visualizer - {_effects[_effectIndex].Name}";
+                SaveLastEffectIndex();
                 break;
             case Keys.Left:
             case Keys.Up:
                 _effectIndex = (_effectIndex - 1 + _effects.Count) % _effects.Count;
                 _effects[_effectIndex].Reset();
                 Text = $"Audio Visualizer - {_effects[_effectIndex].Name}";
+                SaveLastEffectIndex();
                 break;
             case Keys.F11:
                 ToggleFullScreen();
@@ -219,6 +224,7 @@ public sealed class VisualizationWindow : Form
 
     private void OnFormClosing(object? sender, FormClosingEventArgs e)
     {
+        SaveLastEffectIndex();
         _timer.Stop();
         _capture.DataAvailable -= OnDataAvailable;
         try
@@ -231,5 +237,50 @@ public sealed class VisualizationWindow : Form
         }
 
         _capture.DisposeAsync().GetAwaiter().GetResult(); // ubs:ignore[cs.pattern.getawaiter-getresult,cs-task-getawaiter-getresult] -- synchronous shutdown on UI thread
+    }
+
+    private static string SettingsPath =>
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "AudioVisualizer",
+            "last-effect.txt");
+
+    private int LoadLastEffectIndex()
+    {
+        try
+        {
+            if (File.Exists(SettingsPath))
+            {
+                var text = File.ReadAllText(SettingsPath).Trim();
+                if (int.TryParse(text, out var index) && index >= 0 && index < _effects.Count)
+                {
+                    return index;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore settings errors; fall back to default.
+        }
+
+        return 0;
+    }
+
+    private void SaveLastEffectIndex()
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(SettingsPath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(SettingsPath, _effectIndex.ToString());
+        }
+        catch
+        {
+            // Best-effort persistence.
+        }
     }
 }
