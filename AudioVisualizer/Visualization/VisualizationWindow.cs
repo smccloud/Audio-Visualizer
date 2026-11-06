@@ -53,6 +53,7 @@ public sealed class VisualizationWindow : Form
             new LissajousEffect(),
             new ParticleFountainEffect(),
             new StarfieldEffect(),
+            new MilkdropStyleEffect(),
             new VUMeterEffect(),
         };
 
