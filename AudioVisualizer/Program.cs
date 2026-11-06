@@ -17,9 +17,11 @@ try
 {
     Console.OutputEncoding = Encoding.UTF8;
 }
-catch (IOException)
+catch (IOException exception)
 {
-    // Output may be redirected; the visualization still works without UTF-8.
+    // Output may be redirected or unavailable; the visualization still works
+    // without UTF-8, so fall back to the default encoding and continue.
+    Debug.WriteLine($"Unable to set UTF-8 output encoding: {exception.Message}");
 }
 
 using var capture = new WasapiLoopbackCapture();
