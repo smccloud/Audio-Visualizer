@@ -50,17 +50,17 @@ In console mode, press **Ctrl+C** to stop.
 
 The five built-in effects (switch with the arrow keys):
 
-| Console style bars | Mirrored spectrum bars |
+| Console style bars | Circular spectrum |
 |---|---|
-| ![Console style bars](screenshots/effect_ConsoleStyleBars.png) | ![Mirrored spectrum bars](screenshots/effect_MirroredSpectrumBars.png) |
+| ![Console style bars](screenshots/effect_ConsoleStyleBars.png) | ![Circular spectrum](screenshots/effect_CircularSpectrum.png) |
 
-| Oscilloscope trail | Pulsing shapes |
+| Mirrored spectrum bars | Oscilloscope trail |
 |---|---|
-| ![Oscilloscope trail](screenshots/effect_OscilloscopeTrail.png) | ![Pulsing shapes](screenshots/effect_PulsingShapes.png) |
+| ![Mirrored spectrum bars](screenshots/effect_MirroredSpectrumBars.png) | ![Oscilloscope trail](screenshots/effect_OscilloscopeTrail.png) |
 
-| Beat particles |
-|---|
-| ![Beat particles](screenshots/effect_BeatParticles.png) |
+| Pulsing shapes | Beat particles |
+|---|---|
+| ![Pulsing shapes](screenshots/effect_PulsingShapes.png) | ![Beat particles](screenshots/effect_BeatParticles.png) |
 
 ## Installer
 
