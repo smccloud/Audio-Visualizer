@@ -7,7 +7,6 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
 {
     public string Name => "Console-style bars";
 
-    private const int BandHeight = 24;
     private float[] _leftDisplayed = Array.Empty<float>();
     private float[] _rightDisplayed = Array.Empty<float>();
     private VisualizationFrame? _lastFrame;
@@ -70,18 +69,26 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
                 48);
         }
 
-        var barWidth = 12;
-        var gap = 3;
         var originX = 10;
         var originY = 60;
-        var rowHeight = 16;
+        var maxBarHeight = Math.Max(40, bounds.Height - originY - 10);
 
-        DrawBars(graphics, _leftDisplayed, originX, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
+        var channels = _rightDisplayed.Length > 0 ? 2 : 1;
+        var interChannelGap = 20;
+        var totalInterChannelGap = channels > 1 ? interChannelGap : 0;
+        var usableWidth = Math.Max(40, bounds.Width - (originX * 2) - totalInterChannelGap);
+        var perChannelWidth = usableWidth / channels;
+        var bandCount = Math.Max(1, _leftDisplayed.Length);
+        var slotWidth = Math.Max(4, perChannelWidth / bandCount);
+        var barWidth = Math.Max(2, (int)(slotWidth * 0.7));
+        var gap = Math.Max(1, slotWidth - barWidth);
+
+        DrawBars(graphics, _leftDisplayed, originX, originY, barWidth, gap, maxBarHeight, greenBrush, yellowBrush, redBrush);
 
         if (_rightDisplayed.Length > 0)
         {
-            var rightOrigin = originX + (_leftDisplayed.Length * (barWidth + gap)) + 20;
-            DrawBars(graphics, _rightDisplayed, rightOrigin, originY, barWidth, gap, rowHeight, greenBrush, yellowBrush, redBrush);
+            var rightOrigin = originX + (_leftDisplayed.Length * (barWidth + gap)) + interChannelGap;
+            DrawBars(graphics, _rightDisplayed, rightOrigin, originY, barWidth, gap, maxBarHeight, greenBrush, yellowBrush, redBrush);
         }
 
 
@@ -94,12 +101,11 @@ public sealed class ConsoleStyleBarsEffect : IVisualizationEffect
         int originY,
         int barWidth,
         int gap,
-        int rowHeight,
+        int maxBarHeight,
         SolidBrush greenBrush,
         SolidBrush yellowBrush,
         SolidBrush redBrush)
     {
-        var maxBarHeight = BandHeight * rowHeight;
         var greenThreshold = (int)(0.5f * maxBarHeight);
         var yellowThreshold = (int)(0.8f * maxBarHeight);
 
