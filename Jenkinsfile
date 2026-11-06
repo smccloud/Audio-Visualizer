@@ -60,20 +60,6 @@ pipeline {
                 checkout scm
             }
         }
-		
-		stage('Ultimate Bug Scanner') {
-            agent {
-                docker { 
-                    image 'dicklesworthstone/ultimate_bug_scanner:latest' 
-                    // Reuse the workspace folder inside the container
-                    args '-v ${WORKSPACE}:/workspace -w /workspace'
-                }
-            }
-            steps {
-                // Execute the scanner binary inside the container
-                sh 'ubs --path .'
-            }
-        }
 
         stage('Verify SDK') {
             steps {
@@ -91,6 +77,16 @@ pipeline {
         stage('Build') {
             steps {
                 bat "dotnet build ${SOLUTION} --configuration ${CONFIGURATION} --no-restore --warnaserror"
+            }
+        }
+		
+		stage('Ultimate Bug Scanner (WSL)') {
+            steps {
+                echo 'Triggering UBS inside Windows Subsystem for Linux...'
+                
+                // 1. 'wsl' invokes the default Linux distribution
+                // 2. We explicitly pass '.' so it evaluates the current workspace directory mapped into WSL
+                bat 'wsl ubs --path .'
             }
         }
 
