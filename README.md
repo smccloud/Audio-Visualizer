@@ -93,18 +93,17 @@ v7 project that packages the app as a Windows Installer (MSI). It publishes a
 self-contained, single-file `win-x64` build first, so the installed app does not
 need a separate .NET runtime.
 
-Build the MSI on Windows:
+Build the app (without the installer):
 
 ```powershell
 dotnet build ShaunsAudioVisualizer.slnx --configuration Release
-# MSI: installer\bin\x64\Release\ShaunsAudioVisualizer.msi
 ```
 
-To build only the installer:
+Build the MSI on Windows:
 
 ```powershell
 dotnet build installer/ShaunsAudioVisualizer.Installer.wixproj --configuration Release
-# MSI: installer\bin\Release\ShaunsAudioVisualizer.msi
+# MSI: installer\bin\x64\Release\ShaunsAudioVisualizer.msi
 ```
 
 The MSI installs to `C:\Program Files\Audio Visualizer`, adds a Start Menu

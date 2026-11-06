@@ -14,6 +14,10 @@
 // from a self-contained win-x64 publish. This pipeline builds the MSI.
 
 pipeline {
+    parameters {
+        booleanParam(name: 'BUILD_INSTALLER', defaultValue: true,
+            description: 'Build the WiX MSI installer in addition to the app.')
+    }
     // Never schedule on the built-in node: only the Windows agent is eligible.
     agent { label 'Windows-Agent' }
     triggers {
@@ -103,8 +107,11 @@ pipeline {
         }
 
         stage('Build Installer') {
+            when {
+                expression { params.BUILD_INSTALLER }
+            }
             steps {
-                // The solution build normally produces the MSI. Build the WiX
+                // The installer is optional (BUILD_INSTALLER). Build the WiX
                 // project explicitly and verify the output so a skipped or
                 // silently failed installer can never pass the pipeline.
                 // -p:Platform=x64 keeps the output at bin\x64\Release.
@@ -167,7 +174,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: 'publish/**, artifacts/ShaunsAudioVisualizer.msi', fingerprint: true
+            archiveArtifacts artifacts: 'publish/**, artifacts/ShaunsAudioVisualizer.msi', fingerprint: true, allowEmptyArchive: true
         }
         always {
             echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"
