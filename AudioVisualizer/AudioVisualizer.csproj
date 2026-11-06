@@ -11,10 +11,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>Shaun McCloud</Authors>
     <Version>0.1.0</Version>
+    <ApplicationIcon>app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <EmbeddedResource Include="app-icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

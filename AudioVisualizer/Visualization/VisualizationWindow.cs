@@ -14,6 +14,8 @@ public sealed class VisualizationWindow : Form
     private readonly SpectrumAnalyzer _spectrumAnalyzer = new();
     private readonly List<IVisualizationEffect> _effects;
     private int _effectIndex;
+    private bool _pendingBeat;
+    private float _peakAverage;
     private readonly object _frameLock = new();
     private VisualizationFrame? _latestFrame;
     private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
@@ -25,6 +27,18 @@ public sealed class VisualizationWindow : Form
         Text = "Audio Visualizer";
         ClientSize = new Size(960, 540);
         BackColor = Color.Black;
+        try
+        {
+            var stream = typeof(VisualizationWindow).Assembly.GetManifestResourceStream("AudioVisualizer.app-icon.ico");
+            if (stream is not null)
+            {
+                Icon = new Icon(stream);
+            }
+        }
+        catch
+        {
+            // Icon is cosmetic; ignore failures.
+        }
         DoubleBuffered = true;
         KeyPreview = true;
 
@@ -71,6 +85,10 @@ public sealed class VisualizationWindow : Form
 
         var (left, right) = _spectrumAnalyzer.Analyze(data.Format.SampleRate);
         var beat = IsBeat(levels);
+        if (beat)
+        {
+            _pendingBeat = true;
+        }
 
         var frame = new VisualizationFrame(
             left,
@@ -90,17 +108,34 @@ public sealed class VisualizationWindow : Form
     private bool IsBeat(AudioLevelSnapshot levels)
     {
         var now = DateTime.UtcNow;
-        if (levels.Peak > 0.85f && (now - _lastBeat).TotalMilliseconds > 120)
+        // Track a slow-moving average of the peak level so beats are detected
+        // relative to the current playback volume rather than an absolute
+        // threshold that most real-world captures never reach.
+        if (_peakAverage <= 0f)
         {
-            _lastBeat = now;
-            return true;
+            _peakAverage = levels.Peak;
+            return false;
         }
 
-        return false;
+        _peakAverage = (_peakAverage * 0.9f) + (levels.Peak * 0.1f);
+
+        var isBeat = levels.Peak > _peakAverage * 1.8f
+            && levels.Peak > 0.05f
+            && (now - _lastBeat).TotalMilliseconds > 120;
+
+        if (isBeat)
+        {
+            _lastBeat = now;
+        }
+
+        return isBeat;
     }
 
     private void Tick()
     {
+        var beat = _pendingBeat;
+        _pendingBeat = false;
+
         VisualizationFrame? frame;
         lock (_frameLock)
         {
@@ -109,6 +144,21 @@ public sealed class VisualizationWindow : Form
 
         if (frame is not null)
         {
+            // A beat may have occurred on a packet that was already superseded
+            // before this tick ran, so latch it and replay it on the frame handed
+            // to the effect.
+            if (beat && !frame.Beat)
+            {
+                frame = new VisualizationFrame(
+                    frame.LeftBands,
+                    frame.RightBands,
+                    frame.Levels,
+                    frame.Samples,
+                    frame.SampleRate,
+                    frame.Elapsed,
+                    true);
+            }
+
             _effects[_effectIndex].Update(frame);
         }
 
