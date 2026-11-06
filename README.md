@@ -74,6 +74,18 @@ The built-in effects (switch with the arrow keys):
 |---|
 | ![Stereo VU meters](screenshots/effect_VUMeter.png?v=2) |
 
+| WMP98 ambient | WMP98 bars |
+|---|---|
+| ![WMP98 ambient](screenshots/effect_WmpAmbient.png?v=2) | ![WMP98 bars](screenshots/effect_WmpBars.png?v=2) |
+
+| WMP98 scope | WMP98 particles |
+|---|---|
+| ![WMP98 scope](screenshots/effect_WmpScope.png?v=2) | ![WMP98 particles](screenshots/effect_WmpParticles.png?v=2) |
+
+| Winamp spectrum | Winamp oscilloscope |
+|---|---|
+| ![Winamp spectrum](screenshots/effect_WinampSpectrum.png?v=2) | ![Winamp oscilloscope](screenshots/effect_WinampOscilloscope.png?v=2) |
+
 ## Installer
 
 `installer/ShaunsAudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
