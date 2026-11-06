@@ -60,6 +60,8 @@ public sealed class VisualizationWindow : Form
             new WmpBarsEffect(),
             new WmpScopeEffect(),
             new WmpParticlesEffect(),
+            new WinampSpectrumEffect(),
+            new WinampOscilloscopeEffect(),
         };
 
         _effectIndex = LoadLastEffectIndex();
@@ -181,6 +183,13 @@ public sealed class VisualizationWindow : Form
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Control && e.Shift && e.KeyCode == Keys.W)
+        {
+            Mp3Player.PlayEmbedded("AudioVisualizer.LockChime.mp3");
+            e.Handled = true;
+            return;
+        }
+
         switch (e.KeyCode)
         {
             case Keys.Right:

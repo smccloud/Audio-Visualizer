@@ -18,6 +18,7 @@
     <None Include="..\README.md" Pack="true" PackagePath="\" />
     <EmbeddedResource Include="app-icon.ico" />
     <EmbeddedResource Include="vumeter.png" />
+    <EmbeddedResource Include="LockChime.mp3" />
   </ItemGroup>
 
   <ItemGroup>
