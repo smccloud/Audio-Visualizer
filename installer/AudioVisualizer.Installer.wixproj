@@ -1,4 +1,4 @@
-<Project Sdk="WixToolset.Sdk/6.0.2">
+<Project Sdk="WixToolset.Sdk/7.0.0">
 
   <PropertyGroup>
     <OutputName>AudioVisualizer</OutputName>
@@ -10,10 +10,17 @@
          restore/publish never rewrites the app's main project.assets.json while
          the rest of the solution is building. -->
     <AppPublishExtensionsDir>$(MSBuildThisFileDirectory)..\obj\installer-publish\</AppPublishExtensionsDir>
+    <WixAcceptOsmfEula>true</WixAcceptOsmfEula>
+    <AcceptEula>true</AcceptEula>
   </PropertyGroup>
 
+  <Target Name="CreateOsmfEulaFile" BeforeTargets="CheckLicenseAcceptance">
+    <MakeDir Directories="$(USERPROFILE)\.wix" />
+    <WriteLinesToFile File="$(USERPROFILE)\.wix\wix7-osmf-eula.txt" Lines="accepted" Overwrite="true" />
+  </Target>
+
   <ItemGroup>
-    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
     <BindPath Include="$(AppPublishDir)" />
   </ItemGroup>
 

@@ -69,7 +69,7 @@ The five built-in effects (switch with the arrow keys):
 ## Installer
 
 `installer/AudioVisualizer.Installer.wixproj` is a [WiX Toolset](https://wixtoolset.org/)
-v6 project that packages the app as a Windows Installer (MSI). It publishes a
+v7 project that packages the app as a Windows Installer (MSI). It publishes a
 self-contained, single-file `win-x64` build first, so the installed app does not
 need a separate .NET runtime.
 
