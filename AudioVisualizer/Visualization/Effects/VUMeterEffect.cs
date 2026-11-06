@@ -1,0 +1,129 @@
+using System.Drawing;
+using System.Drawing.Drawing2D;
+
+namespace AudioVisualizer.Visualization.Effects;
+
+public sealed class VUMeterEffect : IVisualizationEffect
+{
+    public string Name => "Stereo VU meters";
+
+    private float _leftLevel;
+    private float _rightLevel;
+    private float _leftPeak;
+    private float _rightPeak;
+    private int _leftPeakHold;
+    private int _rightPeakHold;
+
+    public void Reset()
+    {
+        _leftLevel = 0;
+        _rightLevel = 0;
+        _leftPeak = 0;
+        _rightPeak = 0;
+        _leftPeakHold = 0;
+        _rightPeakHold = 0;
+    }
+
+    public void Update(VisualizationFrame frame)
+    {
+        var levels = frame.Levels;
+        var targetLeft = levels.ChannelRms.Length > 0 ? levels.ChannelRms[0] : levels.Rms;
+        var targetRight = levels.ChannelRms.Length > 1 ? levels.ChannelRms[1] : targetLeft;
+
+        // Fast attack, slow decay (analogue ballistics).
+        _leftLevel = targetLeft > _leftLevel
+            ? targetLeft
+            : _leftLevel * 0.92f;
+        _rightLevel = targetRight > _rightLevel
+            ? targetRight
+            : _rightLevel * 0.92f;
+
+        // Peak hold.
+        if (targetLeft > _leftPeak)
+        {
+            _leftPeak = targetLeft;
+            _leftPeakHold = 30;
+        }
+        else if (_leftPeakHold > 0)
+        {
+            _leftPeakHold--;
+        }
+        else
+        {
+            _leftPeak *= 0.95f;
+        }
+
+        if (targetRight > _rightPeak)
+        {
+            _rightPeak = targetRight;
+            _rightPeakHold = 30;
+        }
+        else if (_rightPeakHold > 0)
+        {
+            _rightPeakHold--;
+        }
+        else
+        {
+            _rightPeak *= 0.95f;
+        }
+    }
+
+    public void Render(Graphics graphics, Rectangle bounds)
+    {
+        graphics.Clear(Color.Black);
+        graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+        var meterWidth = bounds.Width / 2 - 20;
+        var meterHeight = Math.Min(bounds.Height - 40, meterWidth);
+        var leftRect = new Rectangle(10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
+        var rightRect = new Rectangle(bounds.Width / 2 + 10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
+
+        DrawMeter(graphics, leftRect, _leftLevel, _leftPeak, "L");
+        DrawMeter(graphics, rightRect, _rightLevel, _rightPeak, "R");
+    }
+
+    private static void DrawMeter(Graphics graphics, Rectangle rect, float level, float peak, string label)
+    {
+        var cx = rect.Left + rect.Width / 2f;
+        var cy = rect.Bottom - 10;
+        var radius = Math.Min(rect.Width, rect.Height) * 0.9f;
+
+        // Arc background
+        using (var bgPen = new Pen(Color.FromArgb(40, 40, 40), 8f))
+        {
+            graphics.DrawArc(bgPen, cx - radius, cy - radius, radius * 2, radius * 2, 200, 140);
+        }
+
+        // Colored arc (green/yellow/red) based on level
+        var sweep = level * 140f;
+        using (var fgPen = new Pen(Color.LimeGreen, 8f))
+        {
+            graphics.DrawArc(fgPen, cx - radius, cy - radius, radius * 2, radius * 2, 200, sweep);
+        }
+
+        // Needle
+        var angleDeg = 200f + level * 140f;
+        var angle = (float)(angleDeg * Math.PI / 180.0);
+        var nx = cx + (float)Math.Cos(angle) * radius * 0.95f;
+        var ny = cy + (float)Math.Sin(angle) * radius * 0.95f;
+        using (var needlePen = new Pen(Color.White, 2f))
+        {
+            graphics.DrawLine(needlePen, cx, cy, nx, ny);
+        }
+
+        // Peak hold marker
+        if (peak > 0)
+        {
+            var peakAngle = (float)((200f + peak * 140f) * Math.PI / 180.0);
+            var px = cx + (float)Math.Cos(peakAngle) * radius * 1.02f;
+            var py = cy + (float)Math.Sin(peakAngle) * radius * 1.02f;
+            using var peakBrush = new SolidBrush(Color.Red);
+            graphics.FillEllipse(peakBrush, px - 3, py - 3, 6, 6);
+        }
+
+        // Label
+        using var font = new Font("Consolas", 12f, FontStyle.Bold);
+        using var brush = new SolidBrush(Color.White);
+        graphics.DrawString(label, font, brush, cx - 6, cy + 5);
+    }
+}
