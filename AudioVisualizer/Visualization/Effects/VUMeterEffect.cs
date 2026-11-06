@@ -14,6 +14,8 @@ public sealed class VUMeterEffect : IVisualizationEffect
     private int _leftPeakHold;
     private int _rightPeakHold;
 
+    private Image? _background;
+
     public void Reset()
     {
         _leftLevel = 0;
@@ -73,33 +75,48 @@ public sealed class VUMeterEffect : IVisualizationEffect
         graphics.Clear(Color.Black);
         graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
+        EnsureBackground();
+
+        if (_background is not null)
+        {
+            graphics.DrawImage(_background, bounds);
+        }
+
         var meterWidth = bounds.Width / 2 - 20;
         var meterHeight = Math.Min(bounds.Height - 40, meterWidth);
         var leftRect = new Rectangle(10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
         var rightRect = new Rectangle(bounds.Width / 2 + 10, (bounds.Height - meterHeight) / 2, meterWidth, meterHeight);
 
-        DrawMeter(graphics, leftRect, _leftLevel, _leftPeak, "L");
-        DrawMeter(graphics, rightRect, _rightLevel, _rightPeak, "R");
+        DrawNeedle(graphics, leftRect, _leftLevel, _leftPeak, "L");
+        DrawNeedle(graphics, rightRect, _rightLevel, _rightPeak, "R");
     }
 
-    private static void DrawMeter(Graphics graphics, Rectangle rect, float level, float peak, string label)
+    private void EnsureBackground()
+    {
+        if (_background is not null)
+        {
+            return;
+        }
+
+        try
+        {
+            var stream = typeof(VUMeterEffect).Assembly.GetManifestResourceStream("AudioVisualizer.vumeter.png");
+            if (stream is not null)
+            {
+                _background = Image.FromStream(stream);
+            }
+        }
+        catch
+        {
+            _background = null;
+        }
+    }
+
+    private static void DrawNeedle(Graphics graphics, Rectangle rect, float level, float peak, string label)
     {
         var cx = rect.Left + rect.Width / 2f;
         var cy = rect.Bottom - 10;
         var radius = Math.Min(rect.Width, rect.Height) * 0.9f;
-
-        // Arc background
-        using (var bgPen = new Pen(Color.FromArgb(40, 40, 40), 8f))
-        {
-            graphics.DrawArc(bgPen, cx - radius, cy - radius, radius * 2, radius * 2, 200, 140);
-        }
-
-        // Colored arc (green/yellow/red) based on level
-        var sweep = level * 140f;
-        using (var fgPen = new Pen(Color.LimeGreen, 8f))
-        {
-            graphics.DrawArc(fgPen, cx - radius, cy - radius, radius * 2, radius * 2, 200, sweep);
-        }
 
         // Needle
         var angleDeg = 200f + level * 140f;
