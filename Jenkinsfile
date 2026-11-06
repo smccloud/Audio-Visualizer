@@ -127,7 +127,7 @@ pipeline {
                         // Single quotes are not stripped by cmd.exe, so the
                         // logger must be passed without quoting: a quoted value
                         // reaches dotnet as "'trx" and fails to load.
-                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --logger trx --results-directory TestResults"
+                        bat "dotnet test ${SOLUTION} --configuration ${CONFIGURATION} --no-build --filter \"Category!=WindowsAudio\" --logger trx --results-directory TestResults"
                         currentBuild.displayName = "${currentBuild.displayName} [Tests]"
                         env.TESTS_RUN = 'true'
                     } else {

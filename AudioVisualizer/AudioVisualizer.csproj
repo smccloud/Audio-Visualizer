@@ -18,6 +18,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="AudioVisualizer.Tests" />
-  </ItemGroup>
+    <InternalsVisibleTo Include="AudioVisualizer.Windows.Tests" />  </ItemGroup>
 
 </Project>

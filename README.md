@@ -95,6 +95,67 @@ In Visual Studio, open `AudioVisualizer.slnx` and use **Test > Test Explorer**
 to run or debug individual tests. The Jenkins pipeline finds the test project
 automatically and publishes the results through the Jenkins MSTest plugin.
 
+### Windows-specific tests
+
+`AudioVisualizer.Windows.Tests` is an xUnit project that covers the Windows
+interop and WASAPI capture layer. It targets `net10.0-windows` and is included
+in `AudioVisualizer.slnx`, so Visual Studio Test Explorer discovers it
+automatically on a Windows developer machine.
+
+The interop and lifecycle tests do not need a live audio stream:
+
+- `WaveFormatReader` parsing of PCM, IEEE float, and `WAVE_FORMAT_EXTENSIBLE`
+  headers, including channel masks and sub-formats
+- rejection of malformed or unsupported formats
+- `AudioFormat` values derived from native formats
+- `HResult.ThrowIfFailed` success and failure behavior
+- `WasapiGuids` and interop enum values
+- `WasapiLoopbackCapture` disposed/twice-start/stop-before-start/idempotent
+  disposal behavior
+
+A hardware-dependent smoke test is provided under the `Category=WindowsAudio`
+trait. It starts loopback capture on the default render device, waits for a
+packet while audio is playing, and reports the negotiated `AudioFormat`. It
+passes without doing anything when no audio device or active playback is
+available, so it never breaks a normal test run.
+
+Prerequisites:
+
+- Windows 10 or later
+- .NET 10 SDK
+- An audio playback device for the smoke test
+
+Running from Visual Studio: open `AudioVisualizer.slnx`, build the solution, and
+use **Test > Test Explorer**. The Windows tests appear alongside the
+cross-platform tests.
+
+Running from the command line:
+
+```powershell
+dotnet test AudioVisualizer.slnx
+```
+
+Run everything except the hardware-dependent smoke tests:
+
+```powershell
+dotnet test AudioVisualizer.slnx --filter "Category!=WindowsAudio"
+```
+
+Run only the hardware-dependent smoke tests:
+
+```powershell
+dotnet test AudioVisualizer.slnx --filter "Category=WindowsAudio"
+```
+
+These tests cannot run on the Linux Jenkins agent because they target
+`net10.0-windows` and exercise Windows Core Audio APIs. Linux builds use
+`AudioVisualizer.Linux.slnf`, which excludes both the installer and the
+Windows test project, so `dotnet test` on Linux stays green. The
+cross-platform tests in `AudioVisualizer.Tests` and the Windows tests in
+`AudioVisualizer.Windows.Tests` together cover the whole solution: pure logic
+on every platform, Windows interop and capture lifecycle only where the
+required APIs exist.
+
 ## Continuous integration
 
 `Jenkinsfile` builds and publishes the solution on the `Windows-Agent` node. The
