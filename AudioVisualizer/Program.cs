@@ -24,7 +24,7 @@ catch (IOException exception)
     Debug.WriteLine($"Unable to set UTF-8 output encoding: {exception.Message}");
 }
 
-using var capture = new WasapiLoopbackCapture();
+await using var capture = new WasapiLoopbackCapture();
 var levelAnalyzer = new AudioLevelAnalyzer();
 var spectrumAnalyzer = new SpectrumAnalyzer();
 var visualizer = new ConsoleVisualizer(

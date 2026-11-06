@@ -3,7 +3,7 @@ namespace AudioVisualizer.Audio;
 /// <summary>
 /// A source of audio samples for the visualizer.
 /// </summary>
-public interface IAudioCaptureSource : IDisposable
+public interface IAudioCaptureSource : IAsyncDisposable
 {
     /// <summary>
     /// Format of the data produced by the source, or <c>null</c> before it starts.

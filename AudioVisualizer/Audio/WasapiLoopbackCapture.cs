@@ -100,7 +100,7 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         lock (_gate)
         {
@@ -112,7 +112,7 @@ public sealed class WasapiLoopbackCapture : IAudioCaptureSource
             _disposed = true;
         }
 
-        StopAsync().GetAwaiter().GetResult();
+        await StopAsync().ConfigureAwait(false);
     }
 
     private void CaptureLoop(
