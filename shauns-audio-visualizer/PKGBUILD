@@ -1,7 +1,7 @@
 # Maintainer: Shaun McCloud <smccloud@smccloud.com>
 pkgname=shauns-audio-visualizer
 pkgver=0.6.0
-pkgrel=4
+pkgrel=5
 pkgdesc="A retro audio visualizer for Linux (console renderer)"
 arch=('x86_64')
 url="https://github.com/smccloud/Shauns-Audio-Visualizer"
@@ -21,14 +21,20 @@ build() {
         --framework net10.0 \
         --runtime linux-x64 \
         --self-contained false \
-        /p:PublishSingleFile=true \
         --output "$srcdir/publish"
 }
 
 package() {
     cd "$srcdir"
+    install -d "$pkgdir/opt/$pkgname"
+    cp -a publish/. "$pkgdir/opt/$pkgname/"
+
     install -d "$pkgdir/usr/bin"
-    install -m755 publish/ShaunsAudioVisualizer "$pkgdir/usr/bin/$pkgname"
+    cat > "$pkgdir/usr/bin/$pkgname" <<'EOF'
+#!/bin/sh
+exec /opt/shauns-audio-visualizer/ShaunsAudioVisualizer "$@"
+EOF
+    chmod 755 "$pkgdir/usr/bin/$pkgname"
 
     install -d "$pkgdir/usr/share/pixmaps"
     install -m644 "$srcdir/Shauns-Audio-Visualizer-$pkgver/ShaunsAudioVisualizer/app-icon.ico" \
