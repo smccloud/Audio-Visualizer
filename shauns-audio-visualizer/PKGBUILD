@@ -6,7 +6,7 @@ pkgdesc="A retro audio visualizer for Linux (console renderer)"
 arch=('x86_64')
 url="https://github.com/smccloud/Shauns-Audio-Visualizer"
 license=('MIT')
-depends=('dotnet-runtime-10.0')
+depends=('dotnet-runtime-10.0' 'dotnet-sdk-10.0')
 options=(!strip)
 optdepends=('pipewire: PipeWire audio support'
             'pulseaudio: PulseAudio audio support')

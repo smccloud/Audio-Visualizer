@@ -8,6 +8,7 @@ pkgrel = 4
 	makedepends = dotnet-sdk-10.0
 	makedepends = git
 	depends = dotnet-runtime-10.0
+	depends = dotnet-sdk-10.0
 	options = !strip
 	optdepends = pipewire: PipeWire audio support
 	optdepends = pulseaudio: PulseAudio audio support
