@@ -19,7 +19,14 @@ pipeline {
             description: 'Build the WiX MSI installer in addition to the app.')
     }
     // Never schedule on the built-in node: only the Windows agent is eligible.
-    agent { label 'Windows-Agent' }
+    // customWorkspace avoids spaces in the path (the default workspace name
+    // contains a space), which breaks the WSL/UBS invocation below.
+    agent {
+        node {
+            label 'Windows-Agent'
+            customWorkspace 'C:/Jenkins/workspace/Shauns-Audio-Visualizer'
+        }
+    }
     triggers {
         githubPush()
     }
@@ -78,7 +85,7 @@ pipeline {
                     // UBS still exits non-zero when it reports findings, so
                     // treat the scan as advisory and keep the SARIF report.
                     def ubsStatus = bat(
-                        script: 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --output=/mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/ubs.sarif /mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/*"',
+                        script: 'wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --exclude=ubs.sarif --output=/mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/ubs.sarif /mnt/c/Jenkins/workspace/Shauns-Audio-Visualizer/*"',
                         returnStatus: true
                     )
                     echo "UBS finished with exit code ${ubsStatus} (0 = clean, 1 = findings)."
@@ -108,7 +115,7 @@ pipeline {
 
         stage('Build Installer') {
             when {
-                expression { params.BUILD_INSTALLER }
+                expression { params.BUILD_INSTALLER == null || params.BUILD_INSTALLER }
             }
             steps {
                 // The installer is optional (BUILD_INSTALLER). Build the WiX
@@ -166,7 +173,7 @@ pipeline {
                 // Match the shape the installer consumes: self-contained,
                 // single-file, so no .NET runtime is needed on the target.
                 bat 'if exist publish rmdir /s /q publish'
-                bat "dotnet publish ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --configuration ${CONFIGURATION} --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false --output publish"
+                bat "dotnet publish ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --configuration ${CONFIGURATION} --framework net10.0-windows --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false --output publish"
                 bat 'dir publish'
             }
         }

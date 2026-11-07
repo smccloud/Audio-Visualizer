@@ -1,0 +1,522 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ubs-csharp",
+          "version": "5.3.13",
+          "informationUri": "https://github.com/Dicklesworthstone/ultimate_bug_scanner"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_frameLock)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Visualization/VisualizationWindow.cs"
+                },
+                "region": {
+                  "startLine": 118,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Visualization/VisualizationWindow.cs#L118"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "6b63b6221036720e"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "6b63b6221036720e",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_frameLock)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Visualization/VisualizationWindow.cs"
+                },
+                "region": {
+                  "startLine": 151,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Visualization/VisualizationWindow.cs#L151"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "e7e702494fd0a424"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "e7e702494fd0a424",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs"
+                },
+                "region": {
+                  "startLine": 33,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs#L33"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "00aaa2d71a8b12ca"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "00aaa2d71a8b12ca",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs"
+                },
+                "region": {
+                  "startLine": 63,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs#L63"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "04fa02b935efd85f"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "04fa02b935efd85f",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs"
+                },
+                "region": {
+                  "startLine": 79,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs#L79"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "be49135eec05c1d4"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "be49135eec05c1d4",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs"
+                },
+                "region": {
+                  "startLine": 105,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/WasapiLoopbackCapture.cs#L105"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "d206a098f4c6f855"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "d206a098f4c6f855",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start \u2014 var process = Process.Start(startInfo);"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 191,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L191"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "b4f88e0f82c0b7ff"
+          },
+          "properties": {
+            "category_id": "csharp.filesystem",
+            "fingerprint": "b4f88e0f82c0b7ff",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start \u2014 using var process = Process.Start(info);"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 306,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L306"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "6242895c3ea2337a"
+          },
+          "properties": {
+            "category_id": "csharp.filesystem",
+            "fingerprint": "6242895c3ea2337a",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L36"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "479154f80318de38"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "479154f80318de38",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 66,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L66"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "1a9b0e977552f8e8"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "1a9b0e977552f8e8",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L83"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "3bd6c0fc18cb798e"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "3bd6c0fc18cb798e",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 133,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L133"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "2fbf51c929304d79"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "2fbf51c929304d79",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 197,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L197"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "eaa812de381b1fb4"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "eaa812de381b1fb4",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.lock-in-async",
+          "level": "warning",
+          "message": {
+            "text": "lock in async code \u2014 lock (_gate)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 261,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/6eec9d8b0e772146f0f4f7d2f647f14931d7481d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L261"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "04045141c4dd4da5"
+          },
+          "properties": {
+            "category_id": "csharp.async-locks",
+            "fingerprint": "04045141c4dd4da5",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.inventory.project",
+          "level": "note",
+          "message": {
+            "text": "Solutions: 0, Projects: 3, TargetFramework tags: 0, C# files scanned: 49"
+          },
+          "partialFingerprints": {
+            "ubs/v1": "c10502a49c0b82e5"
+          },
+          "properties": {
+            "category_id": "csharp.inventory",
+            "fingerprint": "c10502a49c0b82e5",
+            "suppressed": false
+          }
+        }
+      ],
+      "versionControlProvenance": [
+        {
+          "repositoryUri": "https://github.com/smccloud/Shauns-Audio-Visualizer",
+          "revisionId": "6eec9d8b0e772146f0f4f7d2f647f14931d7481d"
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "exitCode": 2,
+          "toolExecutionNotifications": [
+            {
+              "level": "error",
+              "descriptor": {
+                "id": "ubs/module-partial"
+              },
+              "message": {
+                "text": "csharp: partial \u2014 C# semantic coverage is incomplete: /mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs: narrowing_csharp: Unresolved C# callable effects; null analysis is incomplete; C# null-flow branch-state budget exceeded; analysis is incomplete"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "ubs-bash",
+          "version": "5.3.13",
+          "informationUri": "https://github.com/Dicklesworthstone/ultimate_bug_scanner"
+        }
+      },
+      "results": [],
+      "versionControlProvenance": [
+        {
+          "repositoryUri": "https://github.com/smccloud/Shauns-Audio-Visualizer",
+          "revisionId": "6eec9d8b0e772146f0f4f7d2f647f14931d7481d"
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "exitCode": 2,
+          "toolExecutionNotifications": [
+            {
+              "level": "error",
+              "descriptor": {
+                "id": "ubs/module-partial"
+              },
+              "message": {
+                "text": "csharp: partial \u2014 C# semantic coverage is incomplete: /mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs: narrowing_csharp: Unresolved C# callable effects; null analysis is incomplete; C# null-flow branch-state budget exceeded; analysis is incomplete"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
