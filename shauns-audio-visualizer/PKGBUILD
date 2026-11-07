@@ -1,7 +1,7 @@
 # Maintainer: Shaun McCloud <smccloud@smccloud.com>
 pkgname=shauns-audio-visualizer
 pkgver=0.6.0
-pkgrel=2
+pkgrel=3
 pkgdesc="A retro audio visualizer for Linux (console renderer)"
 arch=('x86_64')
 url="https://github.com/smccloud/Shauns-Audio-Visualizer"
@@ -39,7 +39,7 @@ package() {
 Type=Application
 Name=Shauns Audio Visualizer
 Comment=Retro audio visualizer (console and GUI)
-Exec=$pkgname --gui
+Exec=/usr/bin/$pkgname --gui
 Icon=/usr/share/pixmaps/$pkgname.ico
 Terminal=false
 Categories=AudioVideo;Audio;

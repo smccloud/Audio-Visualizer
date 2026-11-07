@@ -19,9 +19,15 @@ if (args.Contains("--console") == false && OperatingSystem.IsWindows())
 #endif
 
 #if !WINDOWS
-if (args.Contains("--gui"))
+var hasDisplay = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY"))
+    || !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY"));
+var forceConsole = args.Contains("--console");
+var forceGui = args.Contains("--gui");
+var filteredArgs = args.Where(a => a != "--gui" && a != "--console").ToArray();
+
+if (forceGui || (hasDisplay && !forceConsole))
 {
-    return ShaunsAudioVisualizer.Visualization.LinuxGui.Run(args);
+    return ShaunsAudioVisualizer.Visualization.LinuxGui.Run(filteredArgs);
 }
 #endif
 
