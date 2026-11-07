@@ -8,6 +8,7 @@ pkgbase = shauns-audio-visualizer
 	makedepends = dotnet-sdk-10.0
 	makedepends = git
 	depends = dotnet-runtime-10.0
+	options = !strip
 	optdepends = pipewire: PipeWire audio support
 	optdepends = pulseaudio: PulseAudio audio support
 	source = shauns-audio-visualizer-0.6.0.tar.gz::https://github.com/smccloud/Shauns-Audio-Visualizer/archive/v0.6.0.tar.gz

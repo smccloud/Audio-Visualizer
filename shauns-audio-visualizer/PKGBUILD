@@ -7,6 +7,7 @@ arch=('x86_64')
 url="https://github.com/smccloud/Shauns-Audio-Visualizer"
 license=('MIT')
 depends=('dotnet-runtime-10.0')
+options=(!strip)
 optdepends=('pipewire: PipeWire audio support'
             'pulseaudio: PulseAudio audio support')
 makedepends=('dotnet-sdk-10.0' 'git')
