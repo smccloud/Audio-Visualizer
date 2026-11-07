@@ -1,0 +1,33 @@
+# Maintainer: Shaun McCloud <smccloud@smccloud.com>
+pkgname=shauns-audio-visualizer
+pkgver=0.4.0
+pkgrel=1
+pkgdesc="A retro audio visualizer for Linux (console renderer)"
+arch=('x86_64')
+url="https://github.com/smccloud/Shauns-Audio-Visualizer"
+license=('MIT')
+depends=('dotnet-runtime-10.0' 'pulseaudio')
+makedepends=('dotnet-sdk-10.0' 'git')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "$srcdir/Shauns-Audio-Visualizer-$pkgver"
+    dotnet publish ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj \
+        --configuration Release \
+        --framework net10.0 \
+        --runtime linux-x64 \
+        --self-contained false \
+        /p:PublishSingleFile=true \
+        --output "$srcdir/publish"
+}
+
+package() {
+    cd "$srcdir"
+    install -d "$pkgdir/usr/bin"
+    install -m755 publish/ShaunsAudioVisualizer "$pkgdir/usr/bin/$pkgname"
+
+    install -d "$pkgdir/usr/share/licenses/$pkgname"
+    install -m644 "$srcdir/Shauns-Audio-Visualizer-$pkgver/LICENSE.md" \
+        "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,18 +1,22 @@
 using System.Diagnostics;
 using System.Text;
+#if NET10_0_WINDOWS
 using System.Windows.Forms;
+#endif
 using ShaunsAudioVisualizer.Audio;
 using ShaunsAudioVisualizer.Audio.Analysis;
 using ShaunsAudioVisualizer.Visualization;
 using System;
 using System.Threading.Tasks;
 
+#if NET10_0_WINDOWS
 if (args.Contains("--console") == false && OperatingSystem.IsWindows())
 {
     ApplicationConfiguration.Initialize();
     Application.Run(new VisualizationWindow());
     return 0;
 }
+#endif
 
 if (!OperatingSystem.IsWindows())
 {
