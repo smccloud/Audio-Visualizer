@@ -245,6 +245,29 @@ The capture and analysis pipeline is in place, along with a console test
 visualization. The Windows renderer and the retro visual effects are still to
 come.
 
+## Linux
+
+The app builds and runs on Linux in console mode. The GUI and WASAPI capture are
+Windows-only; on Linux, audio is captured from a PulseAudio/PipeWire monitor
+source (via `parec` or `pw-cat`) and rendered as live console bars.
+
+Build and run on Linux:
+
+```bash
+dotnet build ShaunsAudioVisualizer.slnx --framework net10.0
+dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --framework net10.0 -- --console
+```
+
+Requirements: .NET 10 SDK, plus `pulseaudio` (or PipeWire with PulseAudio
+compatibility) and `parec`/`pw-cat` on `PATH`.
+
+An Arch Linux (AUR) package is provided under `shauns-audio-visualizer/`
+(`PKGBUILD`). Install with your preferred AUR helper, e.g.:
+
+```bash
+cd shauns-audio-visualizer && makepkg -si
+```
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
