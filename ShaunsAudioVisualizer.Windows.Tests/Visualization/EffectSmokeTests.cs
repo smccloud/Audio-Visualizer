@@ -2,11 +2,12 @@ using ShaunsAudioVisualizer.Audio;
 using ShaunsAudioVisualizer.Audio.Analysis;
 using ShaunsAudioVisualizer.Visualization.Effects;
 
+using System.Drawing;
 using System.Threading.Tasks;
 
-using System.Drawing;
+using Xunit;
 
-namespace ShaunsAudioVisualizer.Tests.Visualization;
+namespace ShaunsAudioVisualizer.Windows.Tests.Visualization;
 
 public sealed class EffectSmokeTests
 {
@@ -58,12 +59,5 @@ public sealed class EffectSmokeTests
             var exception = Record.Exception(() => effect.Render(graphics, new Rectangle(0, 0, 320, 240)));
             Assert.Null(exception);
         }
-    }
-
-    [Fact]
-    public async Task LinuxAudioCapture_StartAsync_ThrowsPlatformNotSupportedException()
-    {
-        await using var capture = new LinuxAudioCapture();
-        await Assert.ThrowsAsync<PlatformNotSupportedException>(() => capture.StartAsync());
     }
 }

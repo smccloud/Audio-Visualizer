@@ -33,11 +33,11 @@
     <MSBuild
         Projects="$(AppProject)"
         Targets="Restore"
-        Properties="Configuration=$(Configuration);Platform=AnyCPU;RuntimeIdentifier=win-x64;SelfContained=true;MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
+        Properties="Configuration=$(Configuration);Platform=AnyCPU;TargetFramework=net10.0-windows;RuntimeIdentifier=win-x64;SelfContained=true;MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
     <MSBuild
         Projects="$(AppProject)"
         Targets="Publish"
-        Properties="Configuration=$(Configuration);Platform=AnyCPU;RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;DebugType=None;DebugSymbols=false;PublishDir=$(AppPublishDir);MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
+        Properties="Configuration=$(Configuration);Platform=AnyCPU;TargetFramework=net10.0-windows;RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;DebugType=None;DebugSymbols=false;PublishDir=$(AppPublishDir);MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
   </Target>
 
 </Project>
