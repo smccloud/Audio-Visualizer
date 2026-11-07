@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="550" height="550" viewBox="0 0 550 550">
+<rect width="100%" height="100%" fill="#0a0a0f"/>
+<path d="M 68.27 394.76 A 220 220 0 0 1 328.22 256.53" stroke="#00aa00" stroke-width="10" fill="none" stroke-linecap="butt"/>
+<path d="M 328.22 256.53 A 220 220 0 0 1 422.21 306.51" stroke="#cccc00" stroke-width="10" fill="none" stroke-linecap="butt"/>
+<path d="M 422.21 306.51 A 220 220 0 0 1 481.73 394.76" stroke="#cc0000" stroke-width="10" fill="none" stroke-linecap="butt"/>
+<path d="M 68.27 394.76 A 220 220 0 0 1 481.73 394.76" stroke="#333333" stroke-width="2" fill="none"/>
+<line x1="79.54" y1="398.86" x2="56.99" y2="390.65" stroke="#aaaaaa" stroke-width="2"/>
+<text x="41.96" y="385.18" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">-20</text>
+<line x1="135.82" y1="315.43" x2="119.76" y2="297.59" stroke="#aaaaaa" stroke-width="2"/>
+<text x="109.06" y="285.70" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">-10</text>
+<line x1="224.68" y1="268.18" x2="218.87" y2="244.89" stroke="#aaaaaa" stroke-width="2"/>
+<text x="215.00" y="229.37" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">-7</text>
+<line x1="300.35" y1="263.55" x2="303.27" y2="239.73" stroke="#aaaaaa" stroke-width="2"/>
+<text x="305.22" y="223.85" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">-5</text>
+<line x1="372.65" y1="286.35" x2="383.92" y2="265.16" stroke="#aaaaaa" stroke-width="2"/>
+<text x="391.43" y="251.03" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">-3</text>
+<line x1="431.98" y1="333.54" x2="450.09" y2="317.79" stroke="#aaaaaa" stroke-width="2"/>
+<text x="462.17" y="307.30" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">0</text>
+<line x1="470.46" y1="398.86" x2="493.01" y2="390.65" stroke="#aaaaaa" stroke-width="2"/>
+<text x="508.04" y="385.18" fill="#cccccc" font-family="Consolas, monospace" font-size="12" text-anchor="middle" dominant-baseline="middle">+3</text>
+<circle cx="275" cy="470" r="6" fill="#ffffff"/>
+<text x="275" y="510" fill="#ffffff" font-family="Consolas, monospace" font-size="28" font-weight="bold" text-anchor="middle">VU</text>
+</svg>

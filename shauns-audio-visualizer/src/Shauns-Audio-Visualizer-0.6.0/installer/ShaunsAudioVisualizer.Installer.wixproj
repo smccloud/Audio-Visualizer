@@ -1,0 +1,43 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+
+  <PropertyGroup>
+    <OutputName>ShaunsAudioVisualizer</OutputName>
+    <OutputType>Package</OutputType>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <AppProject>$(MSBuildThisFileDirectory)..\ShaunsAudioVisualizer\ShaunsAudioVisualizer.csproj</AppProject>
+    <AppPublishDir>$(MSBuildThisFileDirectory)..\publish\</AppPublishDir>
+    <!-- Isolated NuGet extensions directory so the installer's self-contained
+         restore/publish never rewrites the app's main project.assets.json while
+         the rest of the solution is building. -->
+    <AppPublishExtensionsDir>$(MSBuildThisFileDirectory)..\obj\installer-publish\</AppPublishExtensionsDir>
+    <WixAcceptOsmfEula>true</WixAcceptOsmfEula>
+    <AcceptEula>true</AcceptEula>
+  </PropertyGroup>
+
+  <Target Name="CreateOsmfEulaFile" BeforeTargets="CheckLicenseAcceptance">
+    <MakeDir Directories="$(USERPROFILE)\.wix" />
+    <WriteLinesToFile File="$(USERPROFILE)\.wix\wix7-osmf-eula.txt" Lines="accepted" Overwrite="true" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
+    <BindPath Include="$(AppPublishDir)" />
+  </ItemGroup>
+
+  <!-- The installer consumes a self-contained, single-file publish so the
+       installed app does not depend on a separately installed .NET runtime. -->
+  <Target Name="PublishApplication" BeforeTargets="CoreCompile">
+    <!-- Use an isolated NuGet extensions directory for the self-contained
+         publish so its restore cannot race with the solution's parallel app
+         build. -->
+    <MSBuild
+        Projects="$(AppProject)"
+        Targets="Restore"
+        Properties="Configuration=$(Configuration);Platform=AnyCPU;TargetFramework=net10.0-windows;RuntimeIdentifier=win-x64;SelfContained=true;MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
+    <MSBuild
+        Projects="$(AppProject)"
+        Targets="Publish"
+        Properties="Configuration=$(Configuration);Platform=AnyCPU;TargetFramework=net10.0-windows;RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;DebugType=None;DebugSymbols=false;PublishDir=$(AppPublishDir);MSBuildProjectExtensionsPath=$(AppPublishExtensionsDir)" />
+  </Target>
+
+</Project>

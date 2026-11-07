@@ -1,0 +1,81 @@
+// Jenkins CI for the Windows installer only.
+//
+// This pipeline builds nothing but the WiX MSI. The installer project
+// publishes the app as a self-contained, single-file win-x64 build itself, so
+// there is no separate app build or test stage here. Use the main Jenkinsfile
+// for the full restore/build/test/publish pipeline.
+//
+// Prerequisites:
+//   * A .NET 10 SDK on PATH
+//   * A Windows agent labeled 'Windows-Agent' (WiX cannot build an MSI on Linux)
+//
+
+pipeline {
+    agent { label 'Windows-Agent' }
+    triggers {
+        githubPush()
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '15'))
+        disableConcurrentBuilds()
+        timeout(time: 30, unit: 'MINUTES')
+        // Take control of checkout so the workspace can be wiped first.
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        CONFIGURATION = 'Release'
+        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+        DOTNET_NOLOGO = '1'
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
+        DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
+        INSTALLER_PROJECT = 'installer/ShaunsAudioVisualizer.Installer.wixproj'
+        MSI_PATH = 'installer\\bin\\x64\\Release\\ShaunsAudioVisualizer.msi'
+    }
+
+    stages {
+        stage('Clean workspace') {
+            steps {
+                // Wipe the entire workspace before building; disable deferred
+                // wipeout so old MSI/publish output is gone immediately.
+                cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                deleteDir()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify SDK') {
+            steps {
+                bat 'dotnet --version'
+            }
+        }
+
+        stage('Build MSI') {
+            steps {
+                // Building the WiX project also triggers its PublishApplication
+                // target, which produces the self-contained win-x64 payload.
+                // -p:Platform=x64 keeps the output at bin\x64\Release.
+                bat "dotnet build ${INSTALLER_PROJECT} --configuration ${CONFIGURATION} -p:Platform=x64"
+                bat "dir ${MSI_PATH}"
+                // Publish a stable, easy-to-download copy as a build artifact.
+                bat "if not exist artifacts mkdir artifacts"
+                bat "copy /y ${MSI_PATH} artifacts\\ShaunsAudioVisualizer.msi"
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'artifacts/ShaunsAudioVisualizer.msi', fingerprint: true
+        }
+        always {
+            echo "Build ${env.BUILD_NUMBER} finished: ${currentBuild.currentResult}"
+        }
+    }
+}

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj" />
+  <Project Path="ShaunsAudioVisualizer.Tests/ShaunsAudioVisualizer.Tests.csproj" />
+  <Project Path="ShaunsAudioVisualizer.Windows.Tests/ShaunsAudioVisualizer.Windows.Tests.csproj" />
+</Solution>

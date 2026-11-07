@@ -1,7 +1,7 @@
 # Maintainer: Shaun McCloud <smccloud@smccloud.com>
 pkgname=shauns-audio-visualizer
 pkgver=0.6.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A retro audio visualizer for Linux (console renderer)"
 arch=('x86_64')
 url="https://github.com/smccloud/Shauns-Audio-Visualizer"
@@ -28,6 +28,22 @@ package() {
     cd "$srcdir"
     install -d "$pkgdir/usr/bin"
     install -m755 publish/ShaunsAudioVisualizer "$pkgdir/usr/bin/$pkgname"
+
+    install -d "$pkgdir/usr/share/pixmaps"
+    install -m644 "$srcdir/Shauns-Audio-Visualizer-$pkgver/ShaunsAudioVisualizer/app-icon.ico" \
+        "$pkgdir/usr/share/pixmaps/$pkgname.ico"
+
+    install -d "$pkgdir/usr/share/applications"
+    cat > "$pkgdir/usr/share/applications/$pkgname.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Shauns Audio Visualizer
+Comment=Retro audio visualizer (console and GUI)
+Exec=$pkgname --gui
+Icon=/usr/share/pixmaps/$pkgname.ico
+Terminal=false
+Categories=AudioVideo;Audio;
+EOF
 
     install -d "$pkgdir/usr/share/licenses/$pkgname"
     install -m644 "$srcdir/Shauns-Audio-Visualizer-$pkgver/LICENSE.md" \
