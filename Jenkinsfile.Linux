@@ -1,6 +1,6 @@
 // Jenkins CI for the .NET 10 ShaunsAudioVisualizer solution on Linux.
 //
-// Agent: pinned to 'Linux-Agent'. Builds and tests the cross-platform subset
+// Agent: pinned to 'Built-In Node'. Builds and tests the cross-platform subset
 // of the solution (ShaunsAudioVisualizer.Linux.slnf), which excludes the
 // Windows-only installer and Windows test project.
 //
@@ -12,7 +12,7 @@
 // analysis/conversion code stay green on Linux.
 
 pipeline {
-    agent { label 'Linux-Agent' }
+    agent { label 'Built-In Node' }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
