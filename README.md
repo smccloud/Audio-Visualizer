@@ -1,7 +1,7 @@
 # Shaun's Audio Visualizer
 
-[![Build Status - Windows](https://jenkins.smccloud.com/buildStatus/icon?job=Shauns-Audio-Visualizer%20Windows&style=plastic)](https://jenkins.smccloud.com/job/Shauns-Audio-Visualizer%20Windows/)
-[![Build Status - Linux](https://jenkins.smccloud.com/buildStatus/icon?job=Shauns-Audio-Visualizer%20Linux&style=plastic)](https://jenkins.smccloud.com/job/Shauns-Audio-Visualizer%20Linux/)
+Windows Build Status - [![Build Status - Windows](https://jenkins.smccloud.com/buildStatus/icon?job=Shauns-Audio-Visualizer%20Windows&style=plastic)](https://jenkins.smccloud.com/job/Shauns-Audio-Visualizer%20Windows/)\
+Linux Build Status - [![Build Status - Linux](https://jenkins.smccloud.com/buildStatus/icon?job=Shauns-Audio-Visualizer%20Linux&style=plastic)](https://jenkins.smccloud.com/job/Shauns-Audio-Visualizer%20Linux/)
 
 A .NET 10 recreation of the kind of audio visualizer that shipped with Windows in
 the 1990s — the abstract, music-driven animations many of us remember from that
