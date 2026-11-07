@@ -273,6 +273,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
 
             var interrupted = process.HasExited
                 && (process.ExitCode == 0
+                    || process.ExitCode == 1
                     || process.ExitCode == 130
                     || process.ExitCode == -2
                     || process.ExitCode == 141);
