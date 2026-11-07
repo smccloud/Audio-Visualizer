@@ -259,8 +259,8 @@ dotnet build ShaunsAudioVisualizer.slnx --framework net10.0
 dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --framework net10.0 -- --console
 ```
 
-Requirements: .NET 10 SDK, plus `pulseaudio` (or PipeWire with PulseAudio
-compatibility) and `parec`/`pw-cat` on `PATH`.
+Requirements: .NET 10 SDK, plus either PipeWire (`pw-cat`) or PulseAudio
+(`parec`) on `PATH`.
 
 An Arch Linux (AUR) package is provided under `shauns-audio-visualizer/`
 (`PKGBUILD`). Install with your preferred AUR helper, e.g.:

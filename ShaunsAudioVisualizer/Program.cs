@@ -18,13 +18,6 @@ if (args.Contains("--console") == false && OperatingSystem.IsWindows())
 }
 #endif
 
-if (!OperatingSystem.IsWindows())
-{
-    Console.Error.WriteLine(
-        "ShaunsAudioVisualizer captures Windows system audio through WASAPI and must run on Windows.");
-    return 1;
-}
-
 try
 {
     Console.OutputEncoding = Encoding.UTF8;

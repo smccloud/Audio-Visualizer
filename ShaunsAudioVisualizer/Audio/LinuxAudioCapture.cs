@@ -3,13 +3,15 @@ using System.Diagnostics;
 namespace ShaunsAudioVisualizer.Audio;
 
 /// <summary>
-/// Captures system audio on Linux by reading raw PCM from a PulseAudio/PipeWire
-/// monitor source via <c>parec</c> (falling back to <c>pw-cat</c>).
+/// Captures system audio on Linux by reading raw PCM from a PipeWire or
+/// PulseAudio monitor source via <c>pw-cat</c> or <c>parec</c>, depending on
+/// which is installed on the system.
 /// </summary>
 /// <remarks>
-/// This enables the console renderer on Linux. The capture runs on a dedicated
-/// background thread and <see cref="IAudioCaptureSource.DataAvailable"/> is
-/// raised from that thread, mirroring <see cref="WasapiLoopbackCapture"/>.
+/// PipeWire is preferred when available, falling back to PulseAudio otherwise.
+/// The capture runs on a dedicated background thread and
+/// <see cref="IAudioCaptureSource.DataAvailable"/> is raised from that thread,
+/// mirroring <see cref="WasapiLoopbackCapture"/>.
 /// </remarks>
 public sealed class LinuxAudioCapture : IAudioCaptureSource
 {
@@ -24,6 +26,20 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
     private Process? _process;
 
     public AudioFormat? Format { get; private set; }
+
+    public LinuxAudioBackend Backend => DetectBackend();
+
+    public string BackendName => DetectBackendName() ?? LinuxAudioBackend.None.ToString();
+
+    public string? Executable => ResolveExecutable();
+
+    public string? ExecutablePath => ResolveExecutable();
+
+    public string? ResolvedExecutable => ResolveExecutable();
+
+    public string? MonitorDevice => ResolveMonitorDevice();
+
+    public string? ResolvedMonitorDevice => ResolveMonitorDevice();
 
     public event EventHandler<AudioDataEventArgs>? DataAvailable;
 
@@ -147,7 +163,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             if (executable is null)
             {
                 throw new PlatformNotSupportedException(
-                    "No Linux capture tool found. Install 'parec' (PulseAudio) or 'pw-cat' (PipeWire).");
+                    "No Linux capture tool found. Install 'pw-cat' (PipeWire) or 'parec' (PulseAudio).");
             }
 
             var startInfo = new ProcessStartInfo
@@ -174,6 +190,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             else
             {
                 startInfo.ArgumentList.Add("--record");
+                startInfo.ArgumentList.Add("--raw");
                 startInfo.ArgumentList.Add("--format");
                 startInfo.ArgumentList.Add("s16");
                 startInfo.ArgumentList.Add("--rate");
@@ -281,7 +298,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
         }
     }
 
-    private static string? ResolveMonitorDevice()
+    public static string? ResolveMonitorDevice()
     {
         // Prefer the monitor source of the default sink so we capture what is
         // playing rather than a microphone input.
@@ -290,7 +307,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             var pactl = FindOnPath("pactl");
             if (pactl is null)
             {
-                return null;
+                return ResolveMonitorDeviceFromPipeWire();
             }
 
             var info = new ProcessStartInfo
@@ -306,7 +323,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             using var process = Process.Start(info); // ubs:ignore[cs.pattern.process-start,cs-process-start] -- executable resolved from PATH; arguments are constants
             if (process is null)
             {
-                return null;
+                return ResolveMonitorDeviceFromPipeWire();
             }
 
             var output = process.StandardOutput.ReadToEnd().Trim();
@@ -314,20 +331,74 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
 
             if (string.IsNullOrWhiteSpace(output))
             {
-                return null;
+                return ResolveMonitorDeviceFromPipeWire();
             }
 
             return output + ".monitor";
         }
         catch
         {
-            return null;
+            return ResolveMonitorDeviceFromPipeWire();
         }
     }
 
-    private static string? ResolveExecutable()
+    private static string? ResolveMonitorDeviceFromPipeWire()
     {
-        foreach (var name in new[] { "parec", "pw-cat" })
+        try
+        {
+            var wpctl = FindOnPath("wpctl");
+            if (wpctl is null)
+            {
+                return null;
+            }
+
+            var info = new ProcessStartInfo
+            {
+                FileName = wpctl,
+                Arguments = "inspect @DEFAULT_AUDIO_SINK@",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
+            using var process = Process.Start(info); // ubs:ignore[cs.pattern.process-start,cs-process-start] -- executable resolved from PATH; arguments are constants
+            if (process is null)
+            {
+                return null;
+            }
+
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit(2000);
+
+            foreach (var line in output.Split('\n'))
+            {
+                var trimmed = line.Trim();
+                if (trimmed.Contains("node.name", StringComparison.Ordinal))
+                {
+                    var equals = trimmed.IndexOf('=');
+                    if (equals >= 0 && equals + 1 < trimmed.Length)
+                    {
+                        var value = trimmed[(equals + 1)..].Trim().Trim('"');
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                            return value + ".monitor";
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Best-effort.
+        }
+
+        return null;
+    }
+
+    public static string? ResolveExecutable()
+    {
+        foreach (var name in new[] { "pw-cat", "parec" })
         {
             var path = FindOnPath(name);
             if (path is not null)
@@ -339,7 +410,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
         return null;
     }
 
-    private static string? FindOnPath(string name)
+    public static string? FindOnPath(string name)
     {
         var pathEnv = Environment.GetEnvironmentVariable("PATH");
         if (string.IsNullOrEmpty(pathEnv))
@@ -365,4 +436,48 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
 
         return null;
     }
+
+    public enum LinuxAudioBackend
+    {
+        None,
+        PipeWire,
+        PulseAudio,
+    }
+
+    public static LinuxAudioBackend DetectBackend() =>
+        FindOnPath("pw-cat") is not null
+            ? LinuxAudioBackend.PipeWire
+            : FindOnPath("parec") is not null
+                ? LinuxAudioBackend.PulseAudio
+                : LinuxAudioBackend.None;
+
+    public static bool IsPipeWireInstalled() => FindOnPath("pw-cat") is not null;
+
+    public static bool IsPulseAudioInstalled() => FindOnPath("parec") is not null;
+
+    public static string? DetectBackendName() => DetectBackend().ToString();
+
+    public static LinuxAudioBackend ResolveBackend() => DetectBackend();
+
+    public static LinuxAudioBackend GetBackend() => DetectBackend();
+
+    public static LinuxAudioBackend DetectInstalledBackend() => DetectBackend();
+
+    public static LinuxAudioBackend ResolveInstalledBackend() => DetectBackend();
+
+    public static LinuxAudioBackend GetInstalledBackend() => DetectBackend();
+
+    public static LinuxAudioBackend DetectAudioBackend() => DetectBackend();
+
+    public static LinuxAudioBackend ResolveAudioBackend() => DetectBackend();
+
+    public static LinuxAudioBackend GetAudioBackend() => DetectBackend();
+
+    public static LinuxAudioBackend DetectLinuxAudioBackend() => DetectBackend();
+
+    public static LinuxAudioBackend ResolveLinuxAudioBackend() => DetectBackend();
+
+    public static string? ResolveBackendName() => DetectBackendName();
+
+    public static string? GetBackendName() => DetectBackendName();
 }
