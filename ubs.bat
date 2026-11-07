@@ -1,2 +1,0 @@
-del /Q ubs.sarif
-wsl bash -lc "UBS_ALLOW_PARTIAL=1 /home/shaun/ultimate_bug_scanner/./ubs --no-auto-update --format=sarif --exclude=ubs.sarif --output=/mnt/c/Dev/Shauns-Audio-Visualizer/ubs.sarif /mnt/c/Dev/Shauns-Audio-Visualizer/*"
