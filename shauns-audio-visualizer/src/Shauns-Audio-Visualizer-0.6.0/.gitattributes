@@ -1,5 +1,0 @@
-* text=auto eol=crlf
-*.sh text eol=lf
-PKGBUILD text eol=lf
-.SRCINFO text eol=lf
-*.cs text eol=crlf

@@ -1,9 +1,0 @@
-{
-  "solution": {
-    "path": "ShaunsAudioVisualizer.slnx",
-    "projects": [
-      "ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj",
-      "ShaunsAudioVisualizer.Tests/ShaunsAudioVisualizer.Tests.csproj"
-    ]
-  }
-}
