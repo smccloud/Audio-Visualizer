@@ -12,7 +12,9 @@
 // analysis/conversion code stay green on Linux.
 
 pipeline {
-    agent { label 'Built-In Node' }
+    // Run on the Jenkins built-in (controller) node. Support both modern
+    // ('built-in') and legacy ('master') labels for the built-in node.
+    agent { label 'built-in || master' }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
