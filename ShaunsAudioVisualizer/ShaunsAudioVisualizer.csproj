@@ -7,6 +7,7 @@
     <UseWindowsForms Condition="$(TargetFramework.Contains('-windows'))">true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NuGetAudit>false</NuGetAudit>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>Shaun McCloud</Authors>
@@ -17,6 +18,16 @@
   <ItemGroup Condition="!$(TargetFramework.Contains('-windows'))">
     <Compile Remove="Visualization\VisualizationWindow.cs" />
     <Compile Remove="Visualization\Effects\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+    <Compile Remove="Visualization\LinuxGui.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!$(TargetFramework.Contains('-windows'))">
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
   </ItemGroup>
 
   <ItemGroup>

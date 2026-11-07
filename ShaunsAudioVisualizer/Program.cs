@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Text;
-#if NET10_0_WINDOWS
+#if WINDOWS
 using System.Windows.Forms;
 #endif
 using ShaunsAudioVisualizer.Audio;
@@ -9,12 +9,19 @@ using ShaunsAudioVisualizer.Visualization;
 using System;
 using System.Threading.Tasks;
 
-#if NET10_0_WINDOWS
+#if WINDOWS
 if (args.Contains("--console") == false && OperatingSystem.IsWindows())
 {
     ApplicationConfiguration.Initialize();
     Application.Run(new VisualizationWindow());
     return 0;
+}
+#endif
+
+#if !WINDOWS
+if (args.Contains("--gui"))
+{
+    return ShaunsAudioVisualizer.Visualization.LinuxGui.Run(args);
 }
 #endif
 
@@ -41,9 +48,18 @@ var visualizer = new ConsoleVisualizer(
 var stop = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 var lastRender = Stopwatch.StartNew();
 
-Console.CancelKeyPress += (_, eventArgs) =>
+Console.CancelKeyPress += async (_, eventArgs) =>
 {
     eventArgs.Cancel = true;
+    try
+    {
+        await capture.StopAsync();
+    }
+    catch
+    {
+        // Best-effort shutdown.
+    }
+
     stop.TrySetResult(true);
 };
 

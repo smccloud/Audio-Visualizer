@@ -166,43 +166,64 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                     "No Linux capture tool found. Install 'pw-cat' (PipeWire) or 'parec' (PulseAudio).");
             }
 
+            var monitorDevice = ResolveMonitorDevice();
+
+            var toolArguments = new List<string>();
+            if (executable.EndsWith("parec", StringComparison.Ordinal))
+            {
+                toolArguments.Add("--rate=48000");
+                toolArguments.Add("--channels=2");
+                toolArguments.Add("--format=s16le");
+                if (!string.IsNullOrEmpty(monitorDevice))
+                {
+                    toolArguments.Add($"--device={monitorDevice}");
+                }
+            }
+            else
+            {
+                toolArguments.Add("--record");
+                toolArguments.Add("--raw");
+                toolArguments.Add("--format");
+                toolArguments.Add("s16");
+                toolArguments.Add("--rate");
+                toolArguments.Add("48000");
+                toolArguments.Add("--channels");
+                toolArguments.Add("2");
+                if (!string.IsNullOrEmpty(monitorDevice))
+                {
+                    toolArguments.Add("--target");
+                    toolArguments.Add(monitorDevice);
+                }
+                toolArguments.Add("-");
+            }
+
+            // Run the capture tool in its own session so terminal signals such as
+            // Ctrl+C are not forwarded to it; we control its lifetime explicitly.
+            var setsid = FindOnPath("setsid");
             var startInfo = new ProcessStartInfo
             {
-                FileName = executable,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true,
             };
 
-            var monitorDevice = ResolveMonitorDevice();
-
-            if (executable.EndsWith("parec", StringComparison.Ordinal))
+            if (setsid is not null)
             {
-                startInfo.ArgumentList.Add("--rate=48000");
-                startInfo.ArgumentList.Add("--channels=2");
-                startInfo.ArgumentList.Add("--format=s16le");
-                if (!string.IsNullOrEmpty(monitorDevice))
+                startInfo.FileName = setsid;
+                startInfo.ArgumentList.Add(executable);
+                foreach (var argument in toolArguments)
                 {
-                    startInfo.ArgumentList.Add($"--device={monitorDevice}");
+                    startInfo.ArgumentList.Add(argument);
                 }
             }
             else
             {
-                startInfo.ArgumentList.Add("--record");
-                startInfo.ArgumentList.Add("--raw");
-                startInfo.ArgumentList.Add("--format");
-                startInfo.ArgumentList.Add("s16");
-                startInfo.ArgumentList.Add("--rate");
-                startInfo.ArgumentList.Add("48000");
-                startInfo.ArgumentList.Add("--channels");
-                startInfo.ArgumentList.Add("2");
-                if (!string.IsNullOrEmpty(monitorDevice))
+                startInfo.FileName = executable;
+                foreach (var argument in toolArguments)
                 {
-                    startInfo.ArgumentList.Add("--target");
-                    startInfo.ArgumentList.Add(monitorDevice);
+                    startInfo.ArgumentList.Add(argument);
                 }
-                startInfo.ArgumentList.Add("-");
             }
 
             var process = Process.Start(startInfo); // ubs:ignore[cs.pattern.process-start,cs-process-start] -- executable resolved from PATH; arguments are constants
@@ -250,7 +271,13 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                 framePosition += frameCount;
             }
 
-            if (!token.IsCancellationRequested)
+            var interrupted = process.HasExited
+                && (process.ExitCode == 0
+                    || process.ExitCode == 130
+                    || process.ExitCode == -2
+                    || process.ExitCode == 141);
+
+            if (!token.IsCancellationRequested && !interrupted)
             {
                 var stderr = process.StandardError.ReadToEnd();
                 throw new InvalidOperationException(
