@@ -117,7 +117,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             {
                 await captureTask.ConfigureAwait(false);
             }
-            catch
+            catch // ubs:ignore[cs-empty-catch] -- capture errors are reported via the Error event
             {
                 // Swallow; errors are reported via Error event.
             }
@@ -188,7 +188,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                 startInfo.ArgumentList.Add("-");
             }
 
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo); // ubs:ignore[cs.pattern.process-start,cs-process-start] -- executable resolved from PATH; arguments are constants
             if (process is null)
             {
                 throw new InvalidOperationException("Failed to start the Linux capture process.");
@@ -272,7 +272,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                     }
                 }
             }
-            catch
+            catch // ubs:ignore[cs-empty-catch] -- best-effort cleanup
             {
                 // Best-effort cleanup.
             }
@@ -303,7 +303,7 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                 CreateNoWindow = true,
             };
 
-            using var process = Process.Start(info);
+            using var process = Process.Start(info); // ubs:ignore[cs.pattern.process-start,cs-process-start] -- executable resolved from PATH; arguments are constants
             if (process is null)
             {
                 return null;

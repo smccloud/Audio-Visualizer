@@ -1,6 +1,6 @@
 pkgbase = shauns-audio-visualizer
 	pkgdesc = A retro audio visualizer for Linux (console renderer)
-	pkgver = 0.4.0
+	pkgver = 0.5.0
 	pkgrel = 1
 	url = https://github.com/smccloud/Shauns-Audio-Visualizer
 	arch = x86_64

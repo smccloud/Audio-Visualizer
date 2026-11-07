@@ -1,0 +1,274 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ubs-csharp",
+          "version": "5.3.13",
+          "informationUri": "https://github.com/Dicklesworthstone/ultimate_bug_scanner"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "cs.pattern.process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start \u2014 var process = Process.Start(startInfo);"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 191,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L191"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "b4f88e0f82c0b7ff"
+          },
+          "properties": {
+            "category_id": "csharp.filesystem",
+            "fingerprint": "b4f88e0f82c0b7ff",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.pattern.process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start \u2014 using var process = Process.Start(info);"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 306,
+                  "startColumn": 1
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L306"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "6242895c3ea2337a"
+          },
+          "properties": {
+            "category_id": "csharp.filesystem",
+            "fingerprint": "6242895c3ea2337a",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs-empty-catch",
+          "level": "warning",
+          "message": {
+            "text": "Empty catch block swallows exceptions silently; log or handle the exception."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 9
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L93"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "5445f96d38ddf69d"
+          },
+          "properties": {
+            "category_id": "csharp.ast-grep",
+            "fingerprint": "5445f96d38ddf69d",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs-empty-catch",
+          "level": "warning",
+          "message": {
+            "text": "Empty catch block swallows exceptions silently; log or handle the exception."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 144,
+                  "startColumn": 9
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L144"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "8cb5b6984bd0623d"
+          },
+          "properties": {
+            "category_id": "csharp.ast-grep",
+            "fingerprint": "8cb5b6984bd0623d",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs-process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start invocation requires strict input validation to prevent command injection."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 191,
+                  "startColumn": 27
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L191"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "37b56c49ff958eee"
+          },
+          "properties": {
+            "category_id": "csharp.ast-grep",
+            "fingerprint": "37b56c49ff958eee",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs-process-start",
+          "level": "warning",
+          "message": {
+            "text": "Process.Start invocation requires strict input validation to prevent command injection."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs"
+                },
+                "region": {
+                  "startLine": 306,
+                  "startColumn": 33
+                }
+              },
+              "properties": {
+                "permalink": "https://github.com/smccloud/Shauns-Audio-Visualizer/blob/74abe710fd58aec44dc46f0492e1bcaef85d158d/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs#L306"
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "ubs/v1": "838d640da8d13e77"
+          },
+          "properties": {
+            "category_id": "csharp.ast-grep",
+            "fingerprint": "838d640da8d13e77",
+            "suppressed": false
+          }
+        },
+        {
+          "ruleId": "cs.inventory.project",
+          "level": "note",
+          "message": {
+            "text": "Solutions: 0, Projects: 3, TargetFramework tags: 0, C# files scanned: 50"
+          },
+          "partialFingerprints": {
+            "ubs/v1": "c10502a49c0b82e5"
+          },
+          "properties": {
+            "category_id": "csharp.inventory",
+            "fingerprint": "c10502a49c0b82e5",
+            "suppressed": false
+          }
+        }
+      ],
+      "versionControlProvenance": [
+        {
+          "repositoryUri": "https://github.com/smccloud/Shauns-Audio-Visualizer",
+          "revisionId": "74abe710fd58aec44dc46f0492e1bcaef85d158d"
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "exitCode": 2,
+          "toolExecutionNotifications": [
+            {
+              "level": "error",
+              "descriptor": {
+                "id": "ubs/module-partial"
+              },
+              "message": {
+                "text": "csharp: partial \u2014 C# semantic coverage is incomplete: /mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs: narrowing_csharp: Unresolved C# callable effects; null analysis is incomplete; C# null-flow branch-state budget exceeded; analysis is incomplete"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "ubs-bash",
+          "version": "5.3.13",
+          "informationUri": "https://github.com/Dicklesworthstone/ultimate_bug_scanner"
+        }
+      },
+      "results": [],
+      "versionControlProvenance": [
+        {
+          "repositoryUri": "https://github.com/smccloud/Shauns-Audio-Visualizer",
+          "revisionId": "74abe710fd58aec44dc46f0492e1bcaef85d158d"
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "exitCode": 2,
+          "toolExecutionNotifications": [
+            {
+              "level": "error",
+              "descriptor": {
+                "id": "ubs/module-partial"
+              },
+              "message": {
+                "text": "csharp: partial \u2014 C# semantic coverage is incomplete: /mnt/c/Dev/Shauns-Audio-Visualizer/ShaunsAudioVisualizer/Audio/LinuxAudioCapture.cs: narrowing_csharp: Unresolved C# callable effects; null analysis is incomplete; C# null-flow branch-state budget exceeded; analysis is incomplete"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
