@@ -16,7 +16,7 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Restore
         run: dotnet restore ShaunsAudioVisualizer.slnx
-      - name: Build (net10.0)
-        run: dotnet build ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --framework net10.0 --configuration Release --no-restore
+      - name: Build (Linux solution filter)
+        run: dotnet build ShaunsAudioVisualizer.Linux.slnf --configuration Release --no-restore
       - name: Test (Linux solution filter)
         run: dotnet test ShaunsAudioVisualizer.Linux.slnf --configuration Release --no-build
