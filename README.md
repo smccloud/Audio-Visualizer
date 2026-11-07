@@ -233,8 +233,9 @@ dotnet build ShaunsAudioVisualizer.Linux.slnf --configuration Release
 dotnet test ShaunsAudioVisualizer.Linux.slnf --configuration Release --no-build
 ```
 
-The app targets `net10.0-windows`, so Linux machines can build, test, and
-package it but cannot run it.
+On Linux the app runs in console mode, capturing from a PipeWire or PulseAudio
+monitor source and rendering live console bars. The GUI and WASAPI capture
+remain Windows-only.
 
 `Jenkinsfile.Windows` is a minimal installer-only pipeline for jobs that just
 need the MSI: it builds `installer/ShaunsAudioVisualizer.Installer.wixproj` (which
@@ -242,9 +243,8 @@ publishes the app payload itself) and archives the resulting MSI.
 
 ## Status
 
-The capture and analysis pipeline is in place, along with a console test
-visualization. The Windows renderer and the retro visual effects are still to
-come.
+The capture and analysis pipeline is in place, along with a console renderer for
+Linux and a WinForms renderer with retro visual effects for Windows.
 
 ## Linux
 
@@ -255,12 +255,21 @@ source (via `parec` or `pw-cat`) and rendered as live console bars.
 Build and run on Linux:
 
 ```bash
-dotnet build ShaunsAudioVisualizer.slnx --framework net10.0
-dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --framework net10.0 -- --console
+dotnet build ShaunsAudioVisualizer.Linux.slnf --configuration Release
+dotnet run --project ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj --framework net10.0
 ```
 
-Requirements: .NET 10 SDK, plus either PipeWire (`pw-cat`) or PulseAudio
-(`parec`) on `PATH`.
+Or publish a self-contained single-file binary:
+
+```bash
+dotnet publish ShaunsAudioVisualizer/ShaunsAudioVisualizer.csproj \
+  --configuration Release --framework net10.0 --runtime linux-x64 \
+  --self-contained true /p:PublishSingleFile=true --output ./publish
+./publish/ShaunsAudioVisualizer
+```
+
+Requirements: .NET 10 SDK, plus either PipeWire (`pw-cat`, preferred) or
+PulseAudio (`parec`) on `PATH`. When both are installed, PipeWire is used.
 
 An Arch Linux (AUR) package is provided under `shauns-audio-visualizer/`
 (`PKGBUILD`). Install with your preferred AUR helper, e.g.:
