@@ -159,11 +159,17 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                 CreateNoWindow = true,
             };
 
+            var monitorDevice = ResolveMonitorDevice();
+
             if (executable.EndsWith("parec", StringComparison.Ordinal))
             {
                 startInfo.ArgumentList.Add("--rate=48000");
                 startInfo.ArgumentList.Add("--channels=2");
                 startInfo.ArgumentList.Add("--format=s16le");
+                if (!string.IsNullOrEmpty(monitorDevice))
+                {
+                    startInfo.ArgumentList.Add($"--device={monitorDevice}");
+                }
             }
             else
             {
@@ -174,6 +180,11 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
                 startInfo.ArgumentList.Add("48000");
                 startInfo.ArgumentList.Add("--channels");
                 startInfo.ArgumentList.Add("2");
+                if (!string.IsNullOrEmpty(monitorDevice))
+                {
+                    startInfo.ArgumentList.Add("--target");
+                    startInfo.ArgumentList.Add(monitorDevice);
+                }
                 startInfo.ArgumentList.Add("-");
             }
 
@@ -267,6 +278,50 @@ public sealed class LinuxAudioCapture : IAudioCaptureSource
             }
 
             cancellation.Dispose();
+        }
+    }
+
+    private static string? ResolveMonitorDevice()
+    {
+        // Prefer the monitor source of the default sink so we capture what is
+        // playing rather than a microphone input.
+        try
+        {
+            var pactl = FindOnPath("pactl");
+            if (pactl is null)
+            {
+                return null;
+            }
+
+            var info = new ProcessStartInfo
+            {
+                FileName = pactl,
+                Arguments = "get-default-sink",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
+            using var process = Process.Start(info);
+            if (process is null)
+            {
+                return null;
+            }
+
+            var output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit(2000);
+
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                return null;
+            }
+
+            return output + ".monitor";
+        }
+        catch
+        {
+            return null;
         }
     }
 

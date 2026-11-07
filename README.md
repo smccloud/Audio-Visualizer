@@ -268,6 +268,10 @@ An Arch Linux (AUR) package is provided under `shauns-audio-visualizer/`
 cd shauns-audio-visualizer && makepkg -si
 ```
 
+Additional packaging recipes live under `packaging/`:
+- `packaging/flatpak/` — Flatpak manifest
+- `packaging/appimage/` — AppImage build script (`build-appimage.sh`)
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
